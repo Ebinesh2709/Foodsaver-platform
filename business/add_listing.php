@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../config/db.php'; // adjust path if your folder structure differs
+require_once '../includes/ai_helper.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
     header("Location: ../login.php");
@@ -28,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($stmt->execute()) {
             header("Location: my_listings.php?success=1");
+            $new_listing_id = $stmt->insert_id;
+            $urgency = get_urgency_score($description, $expiry_datetime);
+            $update = $conn->prepare("UPDATE food_listings SET urgency_score = ? WHERE id = ?");
+            $update->bind_param("si", $urgency, $new_listing_id);
+            $update->execute();
             exit;
         }
         $errors[] = "Could not save the listing. Try again.";
