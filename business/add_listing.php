@@ -1,95 +1,55 @@
 <?php
-require '../includes/auth_check.php';
-require_role('business');
-require '../config/db.php';
+session_start();
+require_once '../config/db.php'; // adjust path if your folder structure differs
 
-$stmt = $pdo->prepare("SELECT id FROM businesses WHERE user_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$business = $stmt->fetch();
-$business_id = $business['id'];
-
-$error = '';
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
+    header("Location: ../login.php");
+    exit;
+}
+$business_id = $_SESSION['user_id'];
+$errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
-    $description = trim($_POST['description']);
-    $category = trim($_POST['category']);
-    $original_price = $_POST['original_price'];
-    $discounted_price = $_POST['discounted_price'];
-    $quantity = $_POST['quantity'];
-    $pickup_start = $_POST['pickup_start'];
-    $pickup_end = $_POST['pickup_end'];
-    $imageName = null;
+    $food_name       = trim($_POST['food_name'] ?? '');
+    $description     = trim($_POST['description'] ?? '');
+    $quantity        = trim($_POST['quantity'] ?? '');
+    $expiry_datetime = trim($_POST['expiry_datetime'] ?? '');
 
-    if (!empty($_FILES['image']['name'])) {
-        $allowed = ['jpg', 'jpeg', 'png', 'webp'];
-        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+    if ($food_name === '') $errors[] = "Food name is required.";
+    if ($quantity === '' || !is_numeric($quantity) || $quantity <= 0) $errors[] = "Quantity must be a positive number.";
+    if ($expiry_datetime === '') $errors[] = "Expiry date/time is required.";
 
-        if (in_array($ext, $allowed) && $_FILES['image']['size'] < 2000000) {
-            $imageName = time() . '_' . rand(1000,9999) . '.' . $ext;
-            move_uploaded_file($_FILES['image']['tmp_name'], '../assets/uploads/' . $imageName);
-        } else {
-            $error = "Image must be jpg, png, or webp and under 2MB.";
+    if (empty($errors)) {
+        $stmt = $conn->prepare(
+            "INSERT INTO food_listings (business_id, food_name, description, quantity, expiry_datetime, status, created_at)
+             VALUES (?, ?, ?, ?, ?, 'available', NOW())"
+        );
+        $stmt->bind_param("issss", $business_id, $food_name, $description, $quantity, $expiry_datetime);
+
+        if ($stmt->execute()) {
+            header("Location: my_listings.php?success=1");
+            exit;
         }
-    }
-
-    if (!$error && $title && $quantity) {
-        $stmt = $pdo->prepare("INSERT INTO food_listings (business_id, title, description, category, original_price, discounted_price, quantity, pickup_start, pickup_end, image, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'available')");
-        $stmt->execute([$business_id, $title, $description, $category, $original_price, $discounted_price, $quantity, $pickup_start, $pickup_end, $imageName]);
-        header("Location: dashboard.php");
-        exit;
-    } elseif (!$error) {
-        $error = "Please fill in the required fields.";
+        $errors[] = "Could not save the listing. Try again.";
     }
 }
-
-include '../includes/header.php';
 ?>
-
-<h2>Add Food Listing</h2>
-
-<?php if ($error): ?>
-    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
-
-<form method="POST" enctype="multipart/form-data" class="col-md-6">
-    <div class="mb-3">
-        <label class="form-label">Title</label>
-        <input type="text" name="title" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control"></textarea>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Category</label>
-        <input type="text" name="category" class="form-control" placeholder="e.g. Bakery, Meals, Produce">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Original Price (Rs.)</label>
-        <input type="number" step="0.01" name="original_price" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Discounted Price (Rs.)</label>
-        <input type="number" step="0.01" name="discounted_price" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Quantity Available</label>
-        <input type="number" name="quantity" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Pickup Start</label>
-        <input type="datetime-local" name="pickup_start" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Pickup End</label>
-        <input type="datetime-local" name="pickup_end" class="form-control">
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Photo</label>
-        <input type="file" name="image" class="form-control" accept="image/*">
-    </div>
-    <button type="submit" class="btn btn-success">Add Listing</button>
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Add Listing</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet"></head>
+<body><div class="container mt-4">
+<h2>Post a Food Listing</h2>
+<?php foreach ($errors as $e): ?><div class="alert alert-danger"><?= htmlspecialchars($e) ?></div><?php endforeach; ?>
+<form method="POST">
+  <div class="mb-3"><label class="form-label">Food Name</label>
+    <input type="text" name="food_name" class="form-control" required></div>
+  <div class="mb-3"><label class="form-label">Description</label>
+    <textarea name="description" class="form-control" rows="3"></textarea></div>
+  <div class="mb-3"><label class="form-label">Quantity</label>
+    <input type="number" step="0.1" name="quantity" class="form-control" required></div>
+  <div class="mb-3"><label class="form-label">Expiry Date & Time</label>
+    <input type="datetime-local" name="expiry_datetime" class="form-control" required></div>
+  <button class="btn btn-primary">Post Listing</button>
+  <a href="my_listings.php" class="btn btn-secondary">Cancel</a>
 </form>
-
-<?php include '../includes/footer.php'; ?>
+</div></body></html>
