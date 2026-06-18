@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'foodwaste_db';
+$dbname = 'foodsaver_db';
 $username = 'root';
 $password = '';
 

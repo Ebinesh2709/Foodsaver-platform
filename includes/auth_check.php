@@ -3,7 +3,7 @@ session_start();
 
 function require_login() {
     if (!isset($_SESSION['user_id'])) {
-        header("Location: /foodwaste/auth/login.php");
+        header("Location: /Foodsaver/auth/login.php");
         exit;
     }
 }
