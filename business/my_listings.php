@@ -1,5 +1,6 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {

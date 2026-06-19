@@ -1,5 +1,6 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
 require_once 'config/db.php';
 require_once 'includes/ai_helper.php';
 

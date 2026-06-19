@@ -1,5 +1,6 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
 require '../config/db.php';
 
 $error = '';
@@ -22,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($user['role'] === 'admin') {
             header("Location: ../admin/dashboard.php");
         } else {
-            header("Location: ../customer/browse.php");
+            header("Location: ../browse_listings.php");
         }
         exit;
     } else {

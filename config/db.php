@@ -1,4 +1,5 @@
 <?php
+defined('APP_RUNNING') or die("Direct access not permitted.");
 $host = 'localhost';
 $dbname = 'foodsaver_db';
 $username = 'root';

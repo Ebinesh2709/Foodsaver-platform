@@ -1,18 +1,25 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
 require '../config/db.php';
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $role = $_POST['role'];
-    $phone = trim($_POST['phone']);
+    $name          = trim($_POST['name']);
+    $email         = trim($_POST['email']);
+    $password      = $_POST['password'];
+    $role          = $_POST['role'];
+    $phone         = trim($_POST['phone']);
     $business_name = trim($_POST['business_name'] ?? '');
 
-    if ($name && $email && $password && $role) {
+    if (!$name || !$email || !$password || !$role) {
+        $error = "Please fill in all required fields.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Please enter a valid email address.";
+    } elseif (strlen($password) < 8) {
+        $error = "Password must be at least 8 characters.";
+    } else {
         $check = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $check->execute([$email]);
 
@@ -32,8 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: login.php?registered=1");
             exit;
         }
-    } else {
-        $error = "Please fill in all required fields.";
     }
 }
 
@@ -79,7 +84,8 @@ include '../includes/header.php';
 
 <script>
 document.getElementById('roleSelect').addEventListener('change', function() {
-    document.getElementById('businessNameField').style.display = this.value === 'business' ? 'block' : 'none';
+    document.getElementById('businessNameField').style.display = 
+        this.value === 'business' ? 'block' : 'none';
 });
 </script>
 
