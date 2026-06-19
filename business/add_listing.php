@@ -1,5 +1,7 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
+require_once '../includes/csrf_helper.php';
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
@@ -17,6 +19,7 @@ $business_id = $business['id'];
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf_token();
     $title           = trim($_POST['title'] ?? '');
     $description     = trim($_POST['description'] ?? '');
     $category        = trim($_POST['category'] ?? '');
@@ -103,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
   <div class="mb-3"><label class="form-label">Food Photo (optional)</label>
     <input type="file" name="image" class="form-control" accept="image/*"></div>
+  <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">  
   <button class="btn btn-primary">Post Listing</button>
   <a href="my_listings.php" class="btn btn-secondary">Cancel</a>
 </form>

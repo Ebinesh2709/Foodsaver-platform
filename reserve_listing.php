@@ -1,10 +1,13 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
+require_once '../includes/csrf_helper.php';
 require_once 'config/db.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 $user_id = $_SESSION['user_id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf_token();
     $listing_id = $_POST['listing_id'] ?? null;
     if ($listing_id) {
         $check = $pdo->prepare("SELECT status FROM food_listings WHERE id = ?");

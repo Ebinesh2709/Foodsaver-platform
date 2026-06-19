@@ -1,5 +1,7 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
+require_once '../includes/csrf_helper.php';
 require_once '../config/db.php';
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
     header("Location: ../login.php"); exit;
@@ -14,6 +16,7 @@ if (!$business) {
 $business_id = $business['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf_token();
     $reservation_id = $_POST['reservation_id'] ?? null;
     $new_status = $_POST['new_status'] ?? null;
     if ($reservation_id && in_array($new_status, ['confirmed', 'collected'])) {
@@ -59,6 +62,7 @@ $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <form method="POST" style="display:inline">
       <input type="hidden" name="reservation_id" value="<?= $row['id'] ?>">
       <input type="hidden" name="new_status" value="collected">
+      <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
       <button class="btn btn-sm btn-success">Mark Collected</button>
     </form>
   <?php endif; ?>

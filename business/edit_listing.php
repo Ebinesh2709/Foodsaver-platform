@@ -1,5 +1,7 @@
 <?php
 session_start();
+define('APP_RUNNING', true);
+require_once '../includes/csrf_helper.php';
 require_once '../config/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
@@ -23,6 +25,7 @@ if (!$listing) die("Listing not found or not yours.");
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf_token();
     $title            = trim($_POST['title'] ?? '');
     $description      = trim($_POST['description'] ?? '');
     $category         = trim($_POST['category'] ?? '');
@@ -75,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col mb-3"><label class="form-label">Pickup End</label>
       <input type="datetime-local" name="pickup_end" class="form-control" value="<?= htmlspecialchars(str_replace(' ','T',$listing['pickup_end'])) ?>"></div>
   </div>
+  <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
   <button class="btn btn-primary">Save Changes</button>
   <a href="my_listings.php" class="btn btn-secondary">Cancel</a>
 </form>
