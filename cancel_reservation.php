@@ -6,22 +6,19 @@ $user_id = $_SESSION['user_id'];
 $reservation_id = $_GET['id'] ?? null;
 
 if ($reservation_id) {
-    $stmt = $conn->prepare("SELECT listing_id FROM reservations WHERE id = ? AND user_id = ?");
-    $stmt->bind_param("ii", $reservation_id, $user_id);
-    $stmt->execute();
-    $reservation = $stmt->get_result()->fetch_assoc();
+    $stmt = $pdo->prepare("SELECT listing_id FROM reservations WHERE id = ? AND user_id = ?");
+    $stmt->execute([$reservation_id, $user_id]);
+    $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($reservation) {
-        $conn->begin_transaction();
+        $pdo->beginTransaction();
         try {
-            $c = $conn->prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ? AND user_id = ?");
-            $c->bind_param("ii", $reservation_id, $user_id);
-            $c->execute();
-            $r = $conn->prepare("UPDATE food_listings SET status = 'available' WHERE id = ?");
-            $r->bind_param("i", $reservation['listing_id']);
-            $r->execute();
-            $conn->commit();
-        } catch (Exception $e) { $conn->rollback(); }
+            $c = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ? AND user_id = ?");
+            $c->execute([$reservation_id, $user_id]);
+            $r = $pdo->prepare("UPDATE food_listings SET status = 'available' WHERE id = ?");
+            $r->execute([$reservation['listing_id']]);
+            $pdo->commit();
+        } catch (Exception $e) { $pdo->rollBack(); }
     }
 }
 header("Location: my_reservations.php");

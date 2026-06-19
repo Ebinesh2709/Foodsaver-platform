@@ -4,32 +4,36 @@ require_once '../config/db.php';
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
     header("Location: ../login.php"); exit;
 }
-$business_id = $_SESSION['user_id'];
+$stmt_biz = $pdo->prepare("SELECT id FROM businesses WHERE user_id = ?");
+$stmt_biz->execute([$_SESSION['user_id']]);
+$business = $stmt_biz->fetch(PDO::FETCH_ASSOC);
+
+if (!$business) {
+    die("No business profile found. Please complete your business registration first.");
+}
+$business_id = $business['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $reservation_id = $_POST['reservation_id'] ?? null;
     $new_status = $_POST['new_status'] ?? null;
     if ($reservation_id && in_array($new_status, ['confirmed', 'collected'])) {
-        $stmt = $conn->prepare("UPDATE reservations r JOIN food_listings fl ON r.listing_id = fl.id
+        $stmt = $pdo->prepare("UPDATE reservations r JOIN food_listings fl ON r.listing_id = fl.id
             SET r.status = ? WHERE r.id = ? AND fl.business_id = ?");
-        $stmt->bind_param("sii", $new_status, $reservation_id, $business_id);
-        $stmt->execute();
+        $stmt->execute([$new_status, $reservation_id, $business_id]);
 
         if ($new_status === 'collected') {
-            $u = $conn->prepare("UPDATE food_listings fl JOIN reservations r ON r.listing_id = fl.id
+            $u = $pdo->prepare("UPDATE food_listings fl JOIN reservations r ON r.listing_id = fl.id
                 SET fl.status = 'collected' WHERE r.id = ? AND fl.business_id = ?");
-            $u->bind_param("ii", $reservation_id, $business_id);
-            $u->execute();
+            $u->execute([$reservation_id, $business_id]);
         }
     }
 }
 
-$stmt = $conn->prepare("SELECT r.id, fl.food_name, r.status, u.name AS user_name
+$stmt = $pdo->prepare("SELECT r.id, fl.food_name, r.status, u.name AS user_name
     FROM reservations r JOIN food_listings fl ON r.listing_id = fl.id JOIN users u ON r.user_id = u.id
     WHERE fl.business_id = ? ORDER BY r.created_at DESC");
-$stmt->bind_param("i", $business_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt->execute([$business_id]);
+$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>Manage Reservations</title>
@@ -39,7 +43,7 @@ $result = $stmt->get_result();
 <table class="table table-bordered">
 <thead><tr><th>Food</th><th>Reserved By</th><th>Status</th><th>Action</th></tr></thead>
 <tbody>
-<?php while ($row = $result->fetch_assoc()): ?>
+<?php foreach ($reservations as $row): ?>
 <tr>
   <td><?= htmlspecialchars($row['food_name']) ?></td>
   <td><?= htmlspecialchars($row['user_name']) ?></td>
@@ -60,6 +64,6 @@ $result = $stmt->get_result();
   <?php endif; ?>
   </td>
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 </tbody></table>
 </div></body></html>

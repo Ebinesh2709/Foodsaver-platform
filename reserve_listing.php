@@ -7,23 +7,20 @@ $user_id = $_SESSION['user_id'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $listing_id = $_POST['listing_id'] ?? null;
     if ($listing_id) {
-        $check = $conn->prepare("SELECT status FROM food_listings WHERE id = ?");
-        $check->bind_param("i", $listing_id);
-        $check->execute();
-        $listing = $check->get_result()->fetch_assoc();
+        $check = $pdo->prepare("SELECT status FROM food_listings WHERE id = ?");
+        $check->execute([$listing_id]);
+        $listing = $check->fetch(PDO::FETCH_ASSOC);
 
         if ($listing && $listing['status'] === 'available') {
-            $conn->begin_transaction();
+            $pdo->beginTransaction();
             try {
-                $insert = $conn->prepare("INSERT INTO reservations (listing_id, user_id, status, created_at) VALUES (?, ?, 'pending', NOW())");
-                $insert->bind_param("ii", $listing_id, $user_id);
-                $insert->execute();
+                $insert = $pdo->prepare("INSERT INTO reservations (listing_id, user_id, status, created_at) VALUES (?, ?, 'pending', NOW())");
+                $insert->execute([$listing_id, $user_id]);
 
-                $update = $conn->prepare("UPDATE food_listings SET status = 'reserved' WHERE id = ?");
-                $update->bind_param("i", $listing_id);
-                $update->execute();
-                $conn->commit();
-            } catch (Exception $e) { $conn->rollback(); }
+                $update = $pdo->prepare("UPDATE food_listings SET status = 'reserved' WHERE id = ?");
+                $update->execute([$listing_id]);
+                $pdo->commit();
+            } catch (Exception $e) { $pdo->rollBack(); }
         }
     }
 }

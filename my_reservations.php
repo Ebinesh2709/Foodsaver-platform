@@ -4,12 +4,11 @@ require_once 'config/db.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
 $user_id = $_SESSION['user_id'];
 
-$stmt = $conn->prepare("SELECT r.id, fl.food_name, fl.quantity, r.status, r.created_at
+$stmt = $pdo->prepare("SELECT r.id, fl.food_name, fl.quantity, r.status, r.created_at
     FROM reservations r JOIN food_listings fl ON r.listing_id = fl.id
     WHERE r.user_id = ? ORDER BY r.created_at DESC");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt->execute([$user_id]);
+$reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html><head><meta charset="UTF-8"><title>My Reservations</title>
@@ -19,7 +18,7 @@ $result = $stmt->get_result();
 <table class="table table-bordered">
 <thead><tr><th>Food</th><th>Qty</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
 <tbody>
-<?php while ($row = $result->fetch_assoc()): ?>
+<?php foreach ($reservations as $row): ?>
 <tr>
   <td><?= htmlspecialchars($row['food_name']) ?></td>
   <td><?= htmlspecialchars($row['quantity']) ?></td>
@@ -29,6 +28,6 @@ $result = $stmt->get_result();
     <a href="cancel_reservation.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Cancel?')">Cancel</a>
   <?php endif; ?></td>
 </tr>
-<?php endwhile; ?>
+<?php endforeach; ?>
 </tbody></table>
 </div></body></html>
