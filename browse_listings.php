@@ -1,6 +1,7 @@
 <?php
 session_start();
 define('APP_RUNNING', true);
+require_once 'includes/csrf_helper.php';
 require_once 'config/db.php';
 require_once 'includes/ai_helper.php';
 
@@ -137,6 +138,7 @@ $listings = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <?php endif; ?>
           <p><strong>Pickup by:</strong> <?= htmlspecialchars($row['pickup_end']) ?></p>
           <form method="POST" action="reserve_listing.php">
+            <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
             <input type="hidden" name="listing_id" value="<?= $row['id'] ?>">
             <button class="btn btn-success w-100">Reserve</button>
           </form>
