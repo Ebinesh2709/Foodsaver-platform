@@ -1,0 +1,124 @@
+<?php
+session_start();
+
+// Role guard
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'business') {
+    header('Location: ../auth/login.php');
+    exit;
+}
+
+define('APP_RUNNING', true);
+require_once '../config/db.php';
+require_once '../includes/csrf_helper.php';
+
+// Get business_id
+$stmt = $pdo->prepare('SELECT id FROM businesses WHERE user_id = ?');
+$stmt->execute([$_SESSION['user_id']]);
+$biz_row = $stmt->fetch();
+
+if (!$biz_row) {
+    header('Location: dashboard.php');
+    exit;
+}
+$business_id = $biz_row['id'];
+
+// Fetch all listings for this business
+$stmt2 = $pdo->prepare('SELECT * FROM food_listings WHERE business_id = ? ORDER BY created_at DESC');
+$stmt2->execute([$business_id]);
+$listings = $stmt2->fetchAll();
+
+$page_title  = 'My Listings';
+$active_page = 'my_listings';
+require_once '../includes/header.php';
+?>
+
+<main>
+<div class="container py-4">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
+        <h1 class="h3 fw-bold mb-0">My Listings</h1>
+        <a id="btn-add-listing-top" href="add_listing.php" class="btn btn-success">
+            <i class="bi bi-plus-circle me-1"></i>Add New Listing
+        </a>
+    </div>
+
+    <?php if (isset($_GET['added']) && $_GET['added'] == '1'): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>Listing added successfully and urgency score assigned!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>Listing updated successfully!
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
+    <?php if (empty($listings)): ?>
+        <div class="text-center py-5">
+            <div class="display-1">📋</div>
+            <h2 class="h5 mt-3">No listings yet</h2>
+            <p class="text-muted">Add your first surplus food listing to get started.</p>
+            <a href="add_listing.php" class="btn btn-success px-4">Add First Listing</a>
+        </div>
+    <?php else: ?>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Urgency</th>
+                        <th>Status</th>
+                        <th>Qty</th>
+                        <th>Price (LKR)</th>
+                        <th>Pickup End</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($listings as $listing): ?>
+                    <tr>
+                        <td class="fw-semibold"><?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><span class="badge bg-info text-dark"><?= htmlspecialchars(ucfirst($listing['category']), ENT_QUOTES, 'UTF-8') ?></span></td>
+                        <td><?= get_urgency_badge_html($listing['urgency_score']) ?></td>
+                        <td>
+                            <?php
+                            $status_map = [
+                                'available' => 'bg-success',
+                                'reserved'  => 'bg-primary',
+                                'collected' => 'bg-secondary',
+                                'sold_out'  => 'bg-dark',
+                                'expired'   => 'bg-danger',
+                            ];
+                            $status_class = $status_map[$listing['status']] ?? 'bg-secondary';
+                            ?>
+                            <span class="badge <?= $status_class ?>"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $listing['status'])), ENT_QUOTES, 'UTF-8') ?></span>
+                        </td>
+                        <td><?= htmlspecialchars($listing['quantity'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="fw-bold text-success"><?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="text-nowrap small"><?= htmlspecialchars(date('d M Y, H:i', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="text-nowrap">
+                            <a href="edit_listing.php?id=<?= (int)$listing['id'] ?>" class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <form method="post" action="delete_listing.php" class="d-inline"
+                                  onsubmit="return confirm('Delete this listing? This cannot be undone.');">
+                                <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
+                                <input type="hidden" name="listing_id" value="<?= (int)$listing['id'] ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+</main>
+
+<?php require_once '../includes/footer.php'; ?>

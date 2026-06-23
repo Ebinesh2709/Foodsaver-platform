@@ -1,7 +1,7 @@
 <?php
 defined('APP_RUNNING') or die('Direct access not permitted');
 
-define('GROQ_API_KEY', 'your-groq-api-key-here');
+define('GEMINI_API_KEY', 'gsk_Ab8RN6LMdZy0K5fpqASZsJq9BPds4_2P_jULNkvVYR-UOgkcXQ');
 
 $host = 'localhost';
 $dbname = 'foodsaver_db';
