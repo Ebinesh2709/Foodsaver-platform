@@ -1,0 +1,30 @@
+[33me99007b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Remove db.php from tracking, add example config, update gitignore
+[33m7506a03[m Add Gemini API key to config
+[33mcf4b2c8[m[33m ([m[1;31morigin/main[m[33m)[m Implement complete FoodSaver platform with Gemini AI integration
+[33m941c8c0[m Initial project skeleton — folder structure, DB schema, config
+[33m7bc33f1[m Add PHPUnit test suite for urgency scoring and input validation
+[33m542c2f6[m Fix CSRF protection on reserve and cancel reservation flows
+[33m9483620[m Add gitignore to exclude user uploads from repository
+[33m6595755[m Protect config file from direct browser access
+[33mf2f740d[m Add CSRF token verification to all forms
+[33m436c06b[m Add CSRF protection helper
+[33mb271a81[m Add uploads folder for food listing images
+[33m0f63b40[m Add reservation flow - reserve, cancel, confirm, collect
+[33mb1d06ce[m Fix business listing CRUD to use correct PDO and business_id lookup
+[33mbda1be7[m Add AI-powered natural language search to browse listings
+[33m1f5d972[m Add AI urgency scoring and natural language search helper
+[33m8362c75[m updated
+[33mb1ea9fe[m created a ai helper
+[33m4abf25d[m built manage reservations
+[33me024b89[m built my reservations
+[33m2dd89ed[m built my reservations
+[33m32e0157[m added reserve listing
+[33mb40b6d0[m built browse listing
+[33mb81caf5[m added add, edit, delete
+[33m96d8939[m Add business listing creation with photo upload
+[33m0b69c66[m Rebuild business dashboard to display real listings from database
+[33m0cc9b80[m Day 2: added login
+[33meb8c914[m Merge branch 'main' of https://github.com/Ebinesh2700/Foodsaver-platform
+[33m552ce9c[m Day 2
+[33m54ca7d1[m Day 1: database schema, db connection, layout, landing page
+[33m4307480[m Initial commit
