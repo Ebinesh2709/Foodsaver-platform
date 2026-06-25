@@ -2,7 +2,7 @@
 </main>
 
 <footer class="bg-success text-white text-center py-3 mt-5">
-    <small>© 2025 FoodSaver — Reducing food waste in our community | SDG 12 🌍</small>
+    <small>© 2025 FoodSaver — Reducing food waste in Sri Lanka | SDG 12</small>
 </footer>
 
 <!-- Bootstrap 5.3 Bundle JS (includes Popper) CDN -->
