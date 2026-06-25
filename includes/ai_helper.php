@@ -32,3 +32,35 @@ function gemini_request(string $prompt, int $max_tokens): string {
     $body = json_decode($response, true);
     return trim($body['candidates'][0]['content']['parts'][0]['text'] ?? '');
 }
+
+function get_urgency_score(string $description, string $pickup_end): string {
+    $now = new DateTime();
+    $end = new DateTime($pickup_end);
+    $diff = $now->diff($end);
+    $hours = ($diff->days * 24) + $diff->h + ($diff->i / 60);
+
+    if ($hours <= 0) {
+        return 'high';
+    }
+
+    $prompt = "You are a food waste urgency classifier for a food redistribution platform.
+A food business has listed the following surplus food item:
+Description: {$description}
+Hours remaining until pickup deadline: {$hours}
+
+Classify the urgency of collecting this food item.
+Respond with exactly one word — either: high, medium, or low
+- high: must be collected very soon (under 12 hours) or highly perishable
+- medium: moderate urgency (12-48 hours)
+- low: plenty of time (over 48 hours)
+Only output the single word. No punctuation, no explanation.";
+
+    $result = gemini_request($prompt, 5);
+    $word = strtolower($result);
+
+    if (in_array($word, ['high', 'medium', 'low'])) {
+        return $word;
+    }
+
+    return calculate_urgency_fallback($hours);
+}
