@@ -101,7 +101,7 @@ require_once '../includes/header.php';
                             <span class="badge <?= $status_class ?>"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $listing['status'])), ENT_QUOTES, 'UTF-8') ?></span>
                         </td>
                         <td><?= htmlspecialchars($listing['quantity'], ENT_QUOTES, 'UTF-8') ?></td>
-                        <td class="fw-bold text-success"><?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="fw-bold text-success">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap small"><?= htmlspecialchars(date('d M Y, H:i', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap">
                             <a href="edit_listing.php?id=<?= (int)$listing['id'] ?>" class="btn btn-sm btn-fs-outline me-1" style="padding:0.28rem 0.7rem; font-size:0.78rem;">
