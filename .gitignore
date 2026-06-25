@@ -3,3 +3,4 @@
 *.env
 config/secrets.php
 config/db.php
+cleanup.php
