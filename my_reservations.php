@@ -16,7 +16,7 @@ $user_id = (int)$_SESSION['user_id'];
 $stmt = $pdo->prepare(
     'SELECT r.id, r.status, r.created_at,
             fl.title, fl.category, fl.discounted_price,
-            fl.pickup_end, fl.urgency_score,
+            fl.pickup_end, fl.urgency_score, fl.ai_summary,
             b.business_name, b.area
      FROM reservations r
      JOIN food_listings fl ON r.listing_id = fl.id

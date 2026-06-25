@@ -7,40 +7,50 @@ require_once 'includes/csrf_helper.php';
 require_once 'includes/urgency_fallback.php';
 require_once 'includes/ai_helper.php';
 
-$filters      = [];
-$search_query = '';
-$active_filters = [];
+$filters        = [];
+$search_query   = '';
+$ai_response    = '';
+$is_search      = false;
 
 if (!empty($_GET['q'])) {
-    $search_query   = trim($_GET['q']);
-    $filters        = parse_natural_language_search($search_query);
-    $active_filters = array_filter($filters, fn($v) => $v !== null);
+    $search_query = substr(trim($_GET['q']), 0, 300);
+    $is_search    = true;
+    $filters      = parse_natural_language_search($search_query);
 }
 
-// Build dynamic SQL
-$conditions = ["fl.status = 'available'"];
-$params     = [];
+// Build dynamic WHERE
+$where_parts = ["fl.status = 'available'"];
+$bind_values = [];
 
 if (!empty($filters['category'])) {
-    $conditions[] = 'fl.category = ?';
-    $params[]     = $filters['category'];
+    $where_parts[] = 'fl.category = ?';
+    $bind_values[] = $filters['category'];
 }
 if (!empty($filters['min_quantity'])) {
-    $conditions[] = 'fl.quantity >= ?';
-    $params[]     = (int)$filters['min_quantity'];
+    $where_parts[] = 'fl.quantity >= ?';
+    $bind_values[] = (int)$filters['min_quantity'];
 }
 if (!empty($filters['urgency'])) {
-    $conditions[] = 'fl.urgency_score = ?';
-    $params[]     = $filters['urgency'];
-}
-if (!empty($filters['keyword'])) {
-    $conditions[] = '(fl.title LIKE ? OR fl.description LIKE ?)';
-    $kw           = '%' . $filters['keyword'] . '%';
-    $params[]     = $kw;
-    $params[]     = $kw;
+    $where_parts[] = 'fl.urgency_score = ?';
+    $bind_values[] = $filters['urgency'];
 }
 
-$where_clause = implode(' AND ', $conditions);
+// Synonym-based keyword OR search
+$search_terms = array_filter(array_merge(
+    [$filters['keyword'] ?? null],
+    $filters['synonyms'] ?? []
+));
+$like_clauses = [];
+foreach ($search_terms as $term) {
+    $like_clauses[] = '(fl.title LIKE ? OR fl.description LIKE ?)';
+    $bind_values[]  = '%' . $term . '%';
+    $bind_values[]  = '%' . $term . '%';
+}
+if (!empty($like_clauses)) {
+    $where_parts[] = '(' . implode(' OR ', $like_clauses) . ')';
+}
+
+$where_clause = implode(' AND ', $where_parts);
 
 $sql = "SELECT fl.*, b.business_name, b.area
         FROM food_listings fl
@@ -49,8 +59,31 @@ $sql = "SELECT fl.*, b.business_name, b.area
         ORDER BY FIELD(fl.urgency_score, 'high', 'medium', 'low'), fl.pickup_end ASC";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute($params);
+$stmt->execute($bind_values);
 $listings = $stmt->fetchAll();
+
+// Generate AI conversational response for search
+if ($is_search) {
+    $ai_response = generate_search_response(
+        $filters['intent_summary'] ?? $search_query,
+        count($listings),
+        (int)($filters['min_quantity'] ?? 0)
+    );
+}
+
+// If search returned 0 results, also fetch all available for fallback display
+$all_listings = [];
+if ($is_search && empty($listings)) {
+    $stmt2 = $pdo->prepare(
+        "SELECT fl.*, b.business_name, b.area
+         FROM food_listings fl
+         JOIN businesses b ON fl.business_id = b.id
+         WHERE fl.status = 'available'
+         ORDER BY FIELD(fl.urgency_score, 'high', 'medium', 'low'), fl.pickup_end ASC"
+    );
+    $stmt2->execute();
+    $all_listings = $stmt2->fetchAll();
+}
 
 $page_title  = 'Browse Listings';
 $active_page = 'browse';
@@ -66,7 +99,7 @@ require_once 'includes/header.php';
         <div class="input-group input-group-lg shadow-sm">
             <span class="input-group-text bg-white border-end-0">🔍</span>
             <input type="text" id="q" name="q" class="form-control border-start-0"
-                   placeholder="e.g. rice meals for tonight, cheap bakery items..."
+                   placeholder="e.g. I need 15 fried rice, cheap bakery items tonight..."
                    value="<?= htmlspecialchars($search_query, ENT_QUOTES, 'UTF-8') ?>">
             <button type="submit" id="btn-search" class="btn btn-success px-4">Search</button>
             <?php if ($search_query): ?>
@@ -76,8 +109,30 @@ require_once 'includes/header.php';
         <div class="form-text ms-1">Use natural language — our AI extracts filters automatically.</div>
     </form>
 
-    <!-- Active Filters -->
-    <?php if (!empty($active_filters)): ?>
+    <!-- Error Alerts -->
+    <?php if (isset($_GET['error'])): ?>
+        <?php if ($_GET['error'] === 'unavailable'): ?>
+            <div class="alert alert-warning alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle me-2"></i>Sorry, that item was just reserved by someone else.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php elseif ($_GET['error'] === 'failed'): ?>
+            <div class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-x-circle me-2"></i>Reservation failed. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <!-- AI Response -->
+    <?php if ($is_search && $ai_response): ?>
+        <div class="alert alert-info mb-3">
+            <i class="bi bi-robot me-2"></i><?= htmlspecialchars($ai_response, ENT_QUOTES, 'UTF-8') ?>
+        </div>
+    <?php endif; ?>
+
+    <!-- Active Filter Badges -->
+    <?php if ($is_search): ?>
         <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
             <span class="text-muted small fw-semibold">AI Filters:</span>
             <?php if (!empty($filters['category'])): ?>
@@ -92,87 +147,43 @@ require_once 'includes/header.php';
             <?php if (!empty($filters['keyword'])): ?>
                 <span class="badge bg-info text-dark">Keyword: "<?= htmlspecialchars($filters['keyword'], ENT_QUOTES, 'UTF-8') ?>"</span>
             <?php endif; ?>
+            <?php if (!empty($filters['synonyms'])): ?>
+                <span class="badge bg-light text-dark border">Also searched: <?= htmlspecialchars(implode(', ', $filters['synonyms']), ENT_QUOTES, 'UTF-8') ?></span>
+            <?php endif; ?>
         </div>
-        <p class="text-muted small mb-3"><?= count($listings) ?> result<?= count($listings) !== 1 ? 's' : '' ?> found.</p>
     <?php endif; ?>
 
-    <!-- Listings Grid -->
-    <?php if (empty($listings)): ?>
+    <!-- Main Results -->
+    <?php
+    $display_listings  = $listings;
+    $show_fallback_all = $is_search && empty($listings);
+    ?>
+
+    <?php if (empty($display_listings) && !$show_fallback_all): ?>
         <div class="text-center py-5">
             <div class="display-1">🍽️</div>
             <h2 class="h5 mt-3">No listings found</h2>
-            <p class="text-muted">
-                <?= $search_query ? 'Try a different search or browse all listings.' : 'No food listings are currently available. Check back soon!' ?>
-            </p>
-            <?php if ($search_query): ?>
-                <a href="browse_listings.php" class="btn btn-outline-success">Browse All</a>
-            <?php endif; ?>
+            <p class="text-muted">No food listings are currently available. Check back soon!</p>
         </div>
     <?php else: ?>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <?php foreach ($listings as $listing): ?>
-            <div class="col">
-                <div class="card h-100 shadow-sm border-0 urgency-<?= htmlspecialchars($listing['urgency_score'], ENT_QUOTES, 'UTF-8') ?>">
-                    <?php if ($listing['image']): ?>
-                        <img src="uploads/<?= htmlspecialchars($listing['image'], ENT_QUOTES, 'UTF-8') ?>"
-                             class="card-img-top" alt="<?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?>"
-                             style="height: 180px; object-fit: cover;">
-                    <?php else: ?>
-                        <div class="text-center bg-light d-flex align-items-center justify-content-center" style="height:180px; font-size:4rem;">🍱</div>
-                    <?php endif; ?>
-
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <?= get_urgency_badge_html($listing['urgency_score']) ?>
-                            <span class="badge bg-info text-dark"><?= htmlspecialchars(ucfirst($listing['category']), ENT_QUOTES, 'UTF-8') ?></span>
-                        </div>
-
-                        <h2 class="h6 fw-bold mb-1"><?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?></h2>
-                        <p class="small text-muted mb-1">
-                            <i class="bi bi-shop me-1"></i><?= htmlspecialchars($listing['business_name'], ENT_QUOTES, 'UTF-8') ?>
-                            <?php if ($listing['area']): ?>
-                                · <?= htmlspecialchars($listing['area'], ENT_QUOTES, 'UTF-8') ?>
-                            <?php endif; ?>
-                        </p>
-                        <p class="small text-muted mb-2">
-                            <?= htmlspecialchars(mb_strimwidth($listing['description'], 0, 100, '…'), ENT_QUOTES, 'UTF-8') ?>
-                        </p>
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div>
-                                <span class="fw-bold text-success fs-5">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                                <span class="text-muted text-decoration-line-through ms-1 small">LKR <?= htmlspecialchars(number_format((float)$listing['original_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                            </div>
-                            <span class="badge bg-light text-dark border">Qty: <?= (int)$listing['quantity'] ?></span>
-                        </div>
-
-                        <p class="small text-muted mb-3">
-                            <i class="bi bi-clock me-1"></i>Pickup by: <strong><?= htmlspecialchars(date('d M Y, H:i', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>
-                        </p>
-
-                        <div class="mt-auto">
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
-                                <form method="post" action="reserve_listing.php" id="reserve-form-<?= (int)$listing['id'] ?>">
-                                    <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
-                                    <input type="hidden" name="listing_id" value="<?= (int)$listing['id'] ?>">
-                                    <button type="submit" id="btn-reserve-<?= (int)$listing['id'] ?>" class="btn btn-success w-100">
-                                        <i class="bi bi-bag-plus me-1"></i>Reserve Now
-                                    </button>
-                                </form>
-                            <?php elseif (!isset($_SESSION['user_id'])): ?>
-                                <a href="auth/login.php" class="btn btn-outline-success w-100">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i>Login to Reserve
-                                </a>
-                            <?php else: ?>
-                                <button class="btn btn-secondary w-100" disabled>Reserve</button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+        <?php if (!empty($display_listings)): ?>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+            <?php foreach ($display_listings as $listing): ?>
+                <?php include __DIR__ . '/includes/_listing_card.php'; ?>
+            <?php endforeach; ?>
             </div>
-        <?php endforeach; ?>
-        </div>
+        <?php endif; ?>
+
+        <?php if ($show_fallback_all && !empty($all_listings)): ?>
+            <h2 class="h5 fw-bold mb-3 mt-2">All available listings</h2>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <?php foreach ($all_listings as $listing): ?>
+                <?php include __DIR__ . '/includes/_listing_card.php'; ?>
+            <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
+
 </div>
 </main>
 
