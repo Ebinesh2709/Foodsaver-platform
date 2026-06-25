@@ -119,17 +119,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $page_title  = 'Add New Listing';
 $active_page = 'add_listing';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container py-4" style="max-width: 750px;">
-    <h1 class="h3 fw-bold mb-1">Add New Food Listing</h1>
-    <p class="text-muted mb-4">Fill in the details below. Our AI will automatically score urgency after you submit.</p>
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-plus-circle me-2"></i>Add New Food Listing</h1>
+        <p>Fill in the details below — AI will auto-score urgency and generate a summary</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+<div style="max-width:720px; margin:0 auto;">
 
     <?php if (!empty($errors)): ?>
-        <div class="alert alert-danger">
-            <strong>Please fix the errors below before submitting.</strong>
+        <div class="fs-alert-danger mb-4">
+            <i class="bi bi-exclamation-triangle me-2"></i><strong>Please fix the errors below before submitting.</strong>
         </div>
     <?php endif; ?>
 
@@ -229,14 +235,14 @@ require_once '../includes/header.php';
             <?php endif; ?>
         </div>
 
-        <div class="d-flex gap-3">
-            <button type="submit" id="btn-add-listing-submit" class="btn btn-success px-4 fw-semibold">
+        <div class="d-flex gap-3 pt-2">
+            <button type="submit" id="btn-add-listing-submit" class="btn btn-fs-primary px-5 py-2">
                 <i class="bi bi-plus-circle me-2"></i>Add Listing
             </button>
-            <a href="my_listings.php" class="btn btn-outline-secondary px-4">Cancel</a>
+            <a href="my_listings.php" class="btn btn-fs-outline px-4 py-2">Cancel</a>
         </div>
     </form>
 </div>
-</main>
+</div>
 
 <?php require_once '../includes/footer.php'; ?>

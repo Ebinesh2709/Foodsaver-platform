@@ -81,22 +81,28 @@ $reservations = $stmt5->fetchAll();
 
 $page_title  = 'Manage Reservations';
 $active_page = 'manage_reservations';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container py-4">
-    <h1 class="h3 fw-bold mb-4">Manage Reservations</h1>
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-calendar-check me-2"></i>Manage Reservations</h1>
+        <p>Review, confirm and mark collections for customer reservations</p>
+    </div>
+</div>
+
+<div class="container pb-5">
 
     <?php if (empty($reservations)): ?>
-        <div class="text-center py-5">
-            <div class="display-1">📅</div>
-            <h2 class="h5 mt-3">No reservations yet</h2>
-            <p class="text-muted">Reservations on your listings will appear here.</p>
+        <div class="fs-empty">
+            <span class="empty-icon">📅</span>
+            <h2>No reservations yet</h2>
+            <p>Reservations on your listings will appear here once customers start reserving.</p>
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
+        <div class="table-responsive fs-table">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-success">
                     <tr>
                         <th>Food Item</th>
@@ -111,11 +117,11 @@ require_once '../includes/header.php';
                 <?php foreach ($reservations as $res): ?>
                     <?php
                     $status_badge = match($res['status']) {
-                        'pending'   => '<span class="badge bg-warning text-dark">Pending</span>',
-                        'confirmed' => '<span class="badge bg-success">Confirmed</span>',
-                        'collected' => '<span class="badge bg-secondary">Collected</span>',
-                        'cancelled' => '<span class="badge bg-danger">Cancelled</span>',
-                        default     => '<span class="badge bg-secondary">' . htmlspecialchars($res['status'], ENT_QUOTES, 'UTF-8') . '</span>',
+                        'pending'   => '<span class="status-badge status-pending">Pending</span>',
+                        'confirmed' => '<span class="status-badge status-confirmed">Confirmed</span>',
+                        'collected' => '<span class="status-badge status-collected">Collected</span>',
+                        'cancelled' => '<span class="status-badge status-cancelled">Cancelled</span>',
+                        default     => '<span class="status-badge status-collected">' . htmlspecialchars($res['status'], ENT_QUOTES, 'UTF-8') . '</span>',
                     };
                     ?>
                     <tr>
@@ -130,7 +136,7 @@ require_once '../includes/header.php';
                                     <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                                     <input type="hidden" name="reservation_id" value="<?= (int)$res['id'] ?>">
                                     <input type="hidden" name="action" value="confirm">
-                                    <button type="submit" class="btn btn-sm btn-success">
+                                    <button type="submit" class="btn btn-fs-primary" style="padding:0.3rem 0.85rem; font-size:0.8rem;">
                                         <i class="bi bi-check-circle me-1"></i>Confirm
                                     </button>
                                 </form>
@@ -139,7 +145,7 @@ require_once '../includes/header.php';
                                     <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                                     <input type="hidden" name="reservation_id" value="<?= (int)$res['id'] ?>">
                                     <input type="hidden" name="action" value="collect">
-                                    <button type="submit" class="btn btn-sm btn-primary">
+                                    <button type="submit" class="btn btn-fs-outline" style="padding:0.3rem 0.85rem; font-size:0.8rem;">
                                         <i class="bi bi-bag-check me-1"></i>Mark Collected
                                     </button>
                                 </form>
@@ -154,6 +160,5 @@ require_once '../includes/header.php';
         </div>
     <?php endif; ?>
 </div>
-</main>
 
 <?php require_once '../includes/footer.php'; ?>

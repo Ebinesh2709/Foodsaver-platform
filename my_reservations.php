@@ -29,88 +29,96 @@ $reservations = $stmt->fetchAll();
 
 $page_title  = 'My Reservations';
 $active_page = 'reservations';
+$css_prefix  = '';
 require_once 'includes/header.php';
 ?>
 
-<main>
-<div class="container py-4">
-    <h1 class="h3 fw-bold mb-4">My Reservations</h1>
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-bag-check me-2"></i>My Reservations</h1>
+        <p>Track and manage your current food reservations</p>
+    </div>
+</div>
+
+<div class="container pb-5">
 
     <?php if (isset($_GET['reserved']) && $_GET['reserved'] == '1'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="fs-alert-success mb-4">
             <i class="bi bi-check-circle me-2"></i>Reservation created! The business will confirm it shortly.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
     <?php if (empty($reservations)): ?>
-        <div class="text-center py-5">
-            <div class="display-1">📅</div>
-            <h2 class="h5 mt-3">No reservations yet</h2>
-            <p class="text-muted">Browse available food listings and reserve something delicious!</p>
-            <a href="browse_listings.php" class="btn btn-success px-4">Browse Listings</a>
+        <div class="fs-empty">
+            <span class="empty-icon">📅</span>
+            <h2>No reservations yet</h2>
+            <p>Browse available food listings and reserve something delicious before it expires!</p>
+            <a href="browse_listings.php" class="btn btn-fs-primary px-4">Browse Listings</a>
         </div>
     <?php else: ?>
         <div class="row g-3">
         <?php foreach ($reservations as $res): ?>
             <?php
             $status = $res['status'];
-            [$badge_class, $badge_text, $extra_text] = match($status) {
-                'pending'   => ['bg-warning text-dark', 'Pending',   ''],
-                'confirmed' => ['bg-success',           'Confirmed', '<div class="text-success fw-semibold small mt-1"><i class="bi bi-bag-check me-1"></i>Ready for pickup!</div>'],
-                'collected' => ['bg-secondary',         'Collected', ''],
-                'cancelled' => ['bg-danger',            'Cancelled', ''],
-                default     => ['bg-secondary',          $status,    ''],
+            $badge_html = match($status) {
+                'pending'   => '<span class="status-badge status-pending">Pending</span>',
+                'confirmed' => '<span class="status-badge status-confirmed">Confirmed</span>',
+                'collected' => '<span class="status-badge status-collected">Collected</span>',
+                'cancelled' => '<span class="status-badge status-cancelled">Cancelled</span>',
+                default     => '<span class="status-badge status-collected">' . htmlspecialchars($status, ENT_QUOTES, 'UTF-8') . '</span>',
             };
             ?>
             <div class="col-md-6">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h2 class="h6 fw-bold mb-0"><?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?></h2>
-                            <span class="badge <?= $badge_class ?>"><?= $badge_text ?></span>
-                        </div>
-                        <?= $extra_text ?>
-
-                        <p class="small text-muted mb-1">
-                            <i class="bi bi-shop me-1"></i><?= htmlspecialchars($res['business_name'], ENT_QUOTES, 'UTF-8') ?>
-                            <?php if ($res['area']): ?> · <?= htmlspecialchars($res['area'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
-                        </p>
-                        <p class="small text-muted mb-1">
-                            <i class="bi bi-tag me-1"></i><?= htmlspecialchars(ucfirst($res['category']), ENT_QUOTES, 'UTF-8') ?>
-                            &nbsp;|&nbsp;
-                            <?= get_urgency_badge_html($res['urgency_score']) ?>
-                        </p>
-                        <p class="small text-muted mb-1">
-                            <i class="bi bi-currency-exchange me-1"></i>
-                            <span class="fw-bold text-success">LKR <?= htmlspecialchars(number_format((float)$res['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                        </p>
-                        <p class="small text-muted mb-2">
-                            <i class="bi bi-clock me-1"></i>Pickup by: <strong><?= htmlspecialchars(date('d M Y, H:i', strtotime($res['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>
-                        </p>
-                        <p class="small text-muted mb-0">
-                            Reserved: <?= htmlspecialchars(date('d M Y, H:i', strtotime($res['created_at'])), ENT_QUOTES, 'UTF-8') ?>
-                        </p>
-
-                        <?php if ($status === 'pending'): ?>
-                            <div class="mt-3">
-                                <form method="post" action="cancel_reservation.php"
-                                      onsubmit="return confirm('Cancel this reservation? The item will become available again.');">
-                                    <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
-                                    <input type="hidden" name="reservation_id" value="<?= (int)$res['id'] ?>">
-                                    <button type="submit" id="btn-cancel-<?= (int)$res['id'] ?>" class="btn btn-outline-danger btn-sm">
-                                        <i class="bi bi-x-circle me-1"></i>Cancel Reservation
-                                    </button>
-                                </form>
-                            </div>
-                        <?php endif; ?>
+                <div class="fs-card" style="padding:1.4rem 1.5rem;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h2 class="h6 fw-bold mb-0" style="font-size:1rem; max-width:70%;"><?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?></h2>
+                        <?= $badge_html ?>
                     </div>
+
+                    <?php if ($status === 'confirmed'): ?>
+                        <p style="font-size:0.82rem; color:var(--fs-green); font-weight:700; margin-bottom:0.5rem;">
+                            <i class="bi bi-bag-check me-1"></i>Ready for pickup!
+                        </p>
+                    <?php endif; ?>
+
+                    <?php if (!empty($res['ai_summary'])): ?>
+                        <p style="font-size:0.78rem; font-style:italic; color:var(--fs-green-mid); border-left:2px solid var(--fs-green-light); padding-left:0.6rem; margin-bottom:0.5rem;"><?= htmlspecialchars($res['ai_summary'], ENT_QUOTES, 'UTF-8') ?></p>
+                    <?php endif; ?>
+
+                    <p style="font-size:0.8rem; color:var(--fs-text-muted); margin-bottom:0.3rem;">
+                        <i class="bi bi-shop me-1"></i><?= htmlspecialchars($res['business_name'], ENT_QUOTES, 'UTF-8') ?>
+                        <?php if ($res['area']): ?> &middot; <?= htmlspecialchars($res['area'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
+                    </p>
+                    <p style="font-size:0.8rem; color:var(--fs-text-muted); margin-bottom:0.3rem;">
+                        <i class="bi bi-tag me-1"></i><?= htmlspecialchars(ucfirst($res['category']), ENT_QUOTES, 'UTF-8') ?>
+                        &nbsp;&middot;&nbsp;
+                        <?= get_urgency_badge_html($res['urgency_score']) ?>
+                    </p>
+                    <p style="font-size:0.9rem; font-weight:800; color:var(--fs-green); margin-bottom:0.3rem;">
+                        LKR <?= htmlspecialchars(number_format((float)$res['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?>
+                    </p>
+                    <p style="font-size:0.78rem; color:var(--fs-text-muted); margin-bottom:0.3rem;">
+                        <i class="bi bi-clock me-1"></i>Pickup by: <strong><?= htmlspecialchars(date('D d M, g:i A', strtotime($res['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>
+                    </p>
+                    <p style="font-size:0.75rem; color:var(--fs-text-muted); margin-bottom:0.75rem;">
+                        Reserved: <?= htmlspecialchars(date('d M Y, H:i', strtotime($res['created_at'])), ENT_QUOTES, 'UTF-8') ?>
+                    </p>
+
+                    <?php if ($status === 'pending'): ?>
+                        <form method="post" action="cancel_reservation.php"
+                              onsubmit="return confirm('Cancel this reservation? The item will become available again.');">
+                            <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
+                            <input type="hidden" name="reservation_id" value="<?= (int)$res['id'] ?>">
+                            <button type="submit" id="btn-cancel-<?= (int)$res['id'] ?>" class="btn btn-fs-danger btn-sm">
+                                <i class="bi bi-x-circle me-1"></i>Cancel Reservation
+                            </button>
+                        </form>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
-</main>
 
 <?php require_once 'includes/footer.php'; ?>

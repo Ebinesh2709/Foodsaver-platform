@@ -31,32 +31,36 @@ $listings = $pdo->query(
 
 $page_title  = 'Admin Dashboard';
 $active_page = 'dashboard';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container py-4">
-    <h1 class="h3 fw-bold mb-4">Admin Dashboard</h1>
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-shield-lock me-2"></i>Admin Dashboard</h1>
+        <p>Platform overview and recent activity</p>
+    </div>
+</div>
+
+<div class="container pb-5">
 
     <!-- Stats -->
-    <div class="row g-3 mb-5">
+    <div class="row g-4 mb-5">
         <?php
         $stats = [
-            ['label' => 'Total Users',        'value' => $total_users,        'icon' => '👥', 'color' => 'primary'],
-            ['label' => 'Total Businesses',   'value' => $total_businesses,   'icon' => '🏪', 'color' => 'success'],
-            ['label' => 'Total Listings',     'value' => $total_listings,     'icon' => '📋', 'color' => 'info'],
-            ['label' => 'Total Reservations', 'value' => $total_reservations, 'icon' => '📅', 'color' => 'warning'],
+            ['label' => 'Total Users',        'value' => $total_users,        'icon' => '👥', 'color' => 'blue'],
+            ['label' => 'Total Businesses',   'value' => $total_businesses,   'icon' => '🏪', 'color' => 'green'],
+            ['label' => 'Total Listings',     'value' => $total_listings,     'icon' => '📋', 'color' => 'amber'],
+            ['label' => 'Total Reservations', 'value' => $total_reservations, 'icon' => '📅', 'color' => 'red'],
         ];
         foreach ($stats as $s):
         ?>
         <div class="col-sm-6 col-lg-3">
-            <div class="card border-<?= $s['color'] ?> shadow-sm h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="fs-1"><?= $s['icon'] ?></div>
-                    <div>
-                        <div class="display-6 fw-bold text-<?= $s['color'] ?>"><?= $s['value'] ?></div>
-                        <div class="text-muted small"><?= $s['label'] ?></div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon <?= $s['color'] ?>"><?= $s['icon'] ?></div>
+                <div>
+                    <div class="stat-value"><?= $s['value'] ?></div>
+                    <div class="stat-label"><?= $s['label'] ?></div>
                 </div>
             </div>
         </div>
@@ -64,10 +68,10 @@ require_once '../includes/header.php';
     </div>
 
     <!-- Recent Users -->
-    <h2 class="h5 fw-bold mb-3">Recent Users</h2>
-    <div class="table-responsive mb-5">
-        <table class="table table-hover align-middle table-sm">
-            <thead class="table-primary">
+    <h2 class="h6 fw-bold mb-3" style="font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--fs-text-muted);">RECENT USERS</h2>
+    <div class="table-responsive fs-table mb-5">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
                 <tr>
                     <th>#</th>
                     <th>Name</th>
@@ -79,11 +83,11 @@ require_once '../includes/header.php';
             <tbody>
             <?php foreach ($users as $u): ?>
                 <tr>
-                    <td><?= (int)$u['id'] ?></td>
-                    <td><?= htmlspecialchars($u['name'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><span class="badge bg-secondary"><?= htmlspecialchars($u['role'], ENT_QUOTES, 'UTF-8') ?></span></td>
-                    <td class="small text-nowrap"><?= htmlspecialchars(date('d M Y', strtotime($u['created_at'])), ENT_QUOTES, 'UTF-8') ?></td>
+                    <td style="font-size:0.8rem; color:var(--fs-text-muted);"><?= (int)$u['id'] ?></td>
+                    <td style="font-weight:600;"><?= htmlspecialchars($u['name'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td style="font-size:0.84rem;"><?= htmlspecialchars($u['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><span class="filter-chip"><?= htmlspecialchars($u['role'], ENT_QUOTES, 'UTF-8') ?></span></td>
+                    <td style="font-size:0.8rem; white-space:nowrap;"><?= htmlspecialchars(date('d M Y', strtotime($u['created_at'])), ENT_QUOTES, 'UTF-8') ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -91,10 +95,10 @@ require_once '../includes/header.php';
     </div>
 
     <!-- Recent Listings -->
-    <h2 class="h5 fw-bold mb-3">Recent Listings</h2>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle table-sm">
-            <thead class="table-success">
+    <h2 class="h6 fw-bold mb-3" style="font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--fs-text-muted);">RECENT LISTINGS</h2>
+    <div class="table-responsive fs-table">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
                 <tr>
                     <th>#</th>
                     <th>Title</th>
@@ -107,18 +111,17 @@ require_once '../includes/header.php';
             <tbody>
             <?php foreach ($listings as $l): ?>
                 <tr>
-                    <td><?= (int)$l['id'] ?></td>
-                    <td><?= htmlspecialchars($l['title'], ENT_QUOTES, 'UTF-8') ?></td>
-                    <td><?= htmlspecialchars($l['business_name'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td style="font-size:0.8rem; color:var(--fs-text-muted);"><?= (int)$l['id'] ?></td>
+                    <td style="font-weight:600;"><?= htmlspecialchars($l['title'], ENT_QUOTES, 'UTF-8') ?></td>
+                    <td style="font-size:0.84rem;"><?= htmlspecialchars($l['business_name'], ENT_QUOTES, 'UTF-8') ?></td>
                     <td><?= get_urgency_badge_html($l['urgency_score']) ?></td>
-                    <td><span class="badge bg-secondary"><?= htmlspecialchars(ucfirst(str_replace('_',' ',$l['status'])), ENT_QUOTES, 'UTF-8') ?></span></td>
-                    <td class="small text-nowrap"><?= htmlspecialchars(date('d M Y', strtotime($l['created_at'])), ENT_QUOTES, 'UTF-8') ?></td>
+                    <td><span class="filter-chip"><?= htmlspecialchars(ucfirst(str_replace('_',' ',$l['status'])), ENT_QUOTES, 'UTF-8') ?></span></td>
+                    <td style="font-size:0.8rem; white-space:nowrap;"><?= htmlspecialchars(date('d M Y', strtotime($l['created_at'])), ENT_QUOTES, 'UTF-8') ?></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 </div>
-</main>
 
 <?php require_once '../includes/footer.php'; ?>

@@ -38,54 +38,74 @@ $pending_reservations = (int)$stmt3->fetchColumn();
 
 $page_title  = 'Business Dashboard';
 $active_page = 'dashboard';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container py-4">
-    <h1 class="h3 fw-bold mb-1">Welcome, <?= htmlspecialchars($business['business_name'], ENT_QUOTES, 'UTF-8') ?> 👋</h1>
-    <p class="text-muted mb-4">Here's a summary of your FoodSaver activity.</p>
+<!-- Page Header -->
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-shop me-2"></i>Business Dashboard</h1>
+        <p>Welcome back, <?= htmlspecialchars($business['business_name'], ENT_QUOTES, 'UTF-8') ?> 👋</p>
+    </div>
+</div>
+
+<div class="container pb-5">
 
     <!-- Stat Cards -->
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-sm-6">
-            <div class="card border-success shadow-sm h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="display-4 text-success">📋</div>
-                    <div>
-                        <div class="display-6 fw-bold text-success"><?= $active_listings ?></div>
-                        <div class="text-muted">Active Listings</div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon green">📋</div>
+                <div>
+                    <div class="stat-value"><?= $active_listings ?></div>
+                    <div class="stat-label">Active Listings</div>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
-            <div class="card border-warning shadow-sm h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="display-4">🔔</div>
-                    <div>
-                        <div class="display-6 fw-bold text-warning"><?= $pending_reservations ?></div>
-                        <div class="text-muted">Pending Reservations</div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon amber">🔔</div>
+                <div>
+                    <div class="stat-value"><?= $pending_reservations ?></div>
+                    <div class="stat-label">Pending Reservations</div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Quick Actions -->
-    <h2 class="h5 fw-bold mb-3">Quick Actions</h2>
-    <div class="d-flex flex-wrap gap-3">
-        <a id="btn-add-listing" href="add_listing.php" class="btn btn-success btn-lg">
-            <i class="bi bi-plus-circle me-2"></i>Add New Listing
-        </a>
-        <a id="btn-my-listings" href="my_listings.php" class="btn btn-outline-success btn-lg">
-            <i class="bi bi-list-ul me-2"></i>View My Listings
-        </a>
-        <a id="btn-manage-reservations" href="manage_reservations.php" class="btn btn-outline-warning btn-lg">
-            <i class="bi bi-calendar-check me-2"></i>Manage Reservations
-        </a>
+    <h2 class="h6 fw-bold mb-3" style="font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--fs-text-muted);">QUICK ACTIONS</h2>
+    <div class="row g-3">
+        <div class="col-sm-4">
+            <a id="btn-add-listing" href="add_listing.php" class="quick-action">
+                <div class="qa-icon">➕</div>
+                <div>
+                    <div style="font-weight:700;">Add New Listing</div>
+                    <div style="font-size:0.78rem; color:var(--fs-text-muted);">Post surplus food</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-4">
+            <a id="btn-my-listings" href="my_listings.php" class="quick-action">
+                <div class="qa-icon">📋</div>
+                <div>
+                    <div style="font-weight:700;">My Listings</div>
+                    <div style="font-size:0.78rem; color:var(--fs-text-muted);">View &amp; manage</div>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-4">
+            <a id="btn-manage-reservations" href="manage_reservations.php" class="quick-action">
+                <div class="qa-icon">📅</div>
+                <div>
+                    <div style="font-weight:700;">Reservations</div>
+                    <div style="font-size:0.78rem; color:var(--fs-text-muted);">Confirm &amp; collect</div>
+                </div>
+            </a>
+        </div>
     </div>
+
 </div>
-</main>
 
 <?php require_once '../includes/footer.php'; ?>

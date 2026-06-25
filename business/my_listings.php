@@ -29,42 +29,46 @@ $listings = $stmt2->fetchAll();
 
 $page_title  = 'My Listings';
 $active_page = 'my_listings';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container py-4">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-        <h1 class="h3 fw-bold mb-0">My Listings</h1>
-        <a id="btn-add-listing-top" href="add_listing.php" class="btn btn-success">
-            <i class="bi bi-plus-circle me-1"></i>Add New Listing
+<div class="fs-page-header">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div>
+            <h1><i class="bi bi-list-ul me-2"></i>My Listings</h1>
+            <p>Manage your active food listings</p>
+        </div>
+        <a id="btn-add-listing-top" href="add_listing.php" class="btn btn-fs-white px-4">
+            <i class="bi bi-plus-circle me-2"></i>Add New Listing
         </a>
     </div>
+</div>
+
+<div class="container pb-5">
 
     <?php if (isset($_GET['added']) && $_GET['added'] == '1'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle me-2"></i>Listing added successfully and urgency score assigned!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="fs-alert-success mb-3 alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>Listing added successfully — AI urgency score and summary assigned!
         </div>
     <?php endif; ?>
 
     <?php if (isset($_GET['updated']) && $_GET['updated'] == '1'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
+        <div class="fs-alert-success mb-3">
             <i class="bi bi-check-circle me-2"></i>Listing updated successfully!
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     <?php endif; ?>
 
     <?php if (empty($listings)): ?>
-        <div class="text-center py-5">
-            <div class="display-1">📋</div>
-            <h2 class="h5 mt-3">No listings yet</h2>
-            <p class="text-muted">Add your first surplus food listing to get started.</p>
-            <a href="add_listing.php" class="btn btn-success px-4">Add First Listing</a>
+        <div class="fs-empty">
+            <span class="empty-icon">📋</span>
+            <h2>No listings yet</h2>
+            <p>Add your first surplus food listing to get started and help reduce food waste.</p>
+            <a href="add_listing.php" class="btn btn-fs-primary px-4">Add First Listing</a>
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
+        <div class="table-responsive fs-table">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-success">
                     <tr>
                         <th>Title</th>
@@ -100,14 +104,14 @@ require_once '../includes/header.php';
                         <td class="fw-bold text-success"><?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap small"><?= htmlspecialchars(date('d M Y, H:i', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap">
-                            <a href="edit_listing.php?id=<?= (int)$listing['id'] ?>" class="btn btn-sm btn-outline-primary me-1">
+                            <a href="edit_listing.php?id=<?= (int)$listing['id'] ?>" class="btn btn-sm btn-fs-outline me-1" style="padding:0.28rem 0.7rem; font-size:0.78rem;">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
                             <form method="post" action="delete_listing.php" class="d-inline"
                                   onsubmit="return confirm('Delete this listing? This cannot be undone.');">
                                 <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                                 <input type="hidden" name="listing_id" value="<?= (int)$listing['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <button type="submit" class="btn btn-sm btn-fs-danger" style="padding:0.28rem 0.7rem; font-size:0.78rem;">
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             </form>
@@ -119,6 +123,5 @@ require_once '../includes/header.php';
         </div>
     <?php endif; ?>
 </div>
-</main>
 
 <?php require_once '../includes/footer.php'; ?>
