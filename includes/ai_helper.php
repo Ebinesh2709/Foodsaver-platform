@@ -115,3 +115,68 @@ Rules:
 
     return $fallback;
 }
+
+function generate_listing_summary(string $title, string $description, string $category, float $discounted_price, int $quantity, string $pickup_end): string {
+    $fallback = "Fresh {$category} available at a great price — grab it before it's gone!";
+
+    $prompt = "You are writing friendly, appetising copy for a food waste reduction app in Sri Lanka.
+A business has listed this surplus food:
+Title: {$title}
+Description: {$description}
+Category: {$category}
+Price: LKR {$discounted_price}
+Quantity: {$quantity}
+Pickup deadline: {$pickup_end}
+
+Write one short friendly sentence (max 25 words) that makes a customer want to pick this up.
+Focus on value: fresh food, good price, helping reduce waste.
+No emojis. Plain text only. Do not start with \"I\" or \"This is\".";
+
+    $result = gemini_request($prompt, 60);
+    return $result ?: $fallback;
+}
+
+function generate_search_response(string $intent_summary, int $result_count, int $min_quantity): string {
+    if ($result_count > 0) {
+        $fallback = "Found {$result_count} listing(s) matching your request.";
+        $prompt = "A user searched for food on a food redistribution app.
+Their need: {$intent_summary}
+Matching listings found: {$result_count}
+Minimum quantity they need: {$min_quantity}
+
+Write a friendly 1-sentence response (max 15 words) confirming what was found.
+Example: \"Great news — 3 listings can provide 15 or more rice portions right now.\"
+Plain text only. No emojis.";
+        $result = gemini_request($prompt, 40);
+        return $result ?: $fallback;
+    } else {
+        $fallback = "No exact matches found — try browsing all available listings below.";
+        $prompt = "A user searched for food on a food redistribution app but nothing was found.
+Their need: {$intent_summary}
+
+Write a friendly 1-sentence suggestion (max 20 words) to try browsing all listings or adjusting search.
+Plain text only. No emojis.";
+        $result = gemini_request($prompt, 50);
+        return $result ?: $fallback;
+    }
+}
+
+function get_expiry_alert(string $pickup_end, string $urgency_score): string {
+    if ($urgency_score !== 'high') {
+        return '';
+    }
+
+    $now = new DateTime();
+    $end = new DateTime($pickup_end);
+    $diff = $now->diff($end);
+    $hours = round(($diff->days * 24) + $diff->h + ($diff->i / 60), 1);
+
+    $fallback = "Pick up soon — only {$hours} hours left!";
+
+    $prompt = "Write a short urgent but friendly alert (max 12 words) for a food pickup app.
+The food must be collected within {$hours} hours or it will be wasted.
+Make it feel urgent without being alarming. Plain text only. No emojis.";
+
+    $result = gemini_request($prompt, 30);
+    return $result ?: $fallback;
+}
