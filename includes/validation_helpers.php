@@ -14,3 +14,6 @@ function validate_pickup_window(string $start, string $end): bool {
 function sanitize_output(string $value): string {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
+function validate_title(string $title): bool {
+    return trim($title) !== '' && mb_strlen($title) <= 200;
+}
