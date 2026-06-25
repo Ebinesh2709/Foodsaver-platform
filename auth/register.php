@@ -4,6 +4,7 @@ session_start();
 define('APP_RUNNING', true);
 require_once '../config/db.php';
 require_once '../includes/csrf_helper.php';
+require_once '../includes/validation_helpers.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($name === '' || mb_strlen($name) > 100) {
         $errors['name'] = 'Full name is required (max 100 characters).';
     }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!validate_email($email)) {
         $errors['email'] = 'Please enter a valid email address.';
     } else {
         $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors['email'] = 'This email is already registered.';
         }
     }
-    if (mb_strlen($password) < 8) {
+    if (!validate_password($password)) {
         $errors['password'] = 'Password must be at least 8 characters.';
     }
     if (!in_array($role, ['customer', 'business'], true)) {
