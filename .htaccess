@@ -1,0 +1,46 @@
+# FoodSaver — Apache configuration
+# Blocks old HTML files and routes traffic to the PHP backend
+
+Options -Indexes -MultiViews
+
+# ── Redirect all old .html pages to the correct PHP equivalents ──
+RewriteEngine On
+
+# Old user-facing food browsing pages
+RewriteRule ^userBrowseFood\.html$      /browse_listings.php     [R=301,L]
+RewriteRule ^userViewFood\.html$        /browse_listings.php     [R=301,L]
+RewriteRule ^userHomePage\.html$        /index.php               [R=301,L]
+RewriteRule ^loginPage\.html$           /auth/login.php          [R=301,L]
+RewriteRule ^registerPage\.html$        /auth/register.php       [R=301,L]
+RewriteRule ^userProfile\.html$         /my_reservations.php     [R=301,L]
+RewriteRule ^userCart\.html$            /my_reservations.php     [R=301,L]
+RewriteRule ^businessDashboard\.html$   /business/dashboard.php  [R=301,L]
+RewriteRule ^businessAddFood\.html$     /business/add_listing.php [R=301,L]
+RewriteRule ^businessEditFood\.html$    /business/edit_listing.php [R=301,L]
+RewriteRule ^adminDashboard\.html$      /admin/dashboard.php     [R=301,L]
+
+# Catch-all: any remaining .html file → 404
+RewriteRule \.html$                     /404.php                 [R=301,L]
+
+# Custom error pages
+ErrorDocument 404 /404.php
+ErrorDocument 403 /404.php
+
+# ── Security headers ──
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# ── Block direct access to sensitive files ──
+<FilesMatch "^(composer\.json|composer\.lock|phpunit\.xml|\.env)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ── Prevent access to hidden files ──
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
