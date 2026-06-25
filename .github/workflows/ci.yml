@@ -38,7 +38,7 @@ jobs:
 
       - name: Verify all critical files exist
         run: |
-          test -f config/db.php             || (echo "MISSING: config/db.php" && exit 1)
+          test -f config/db.example.php      || (echo "MISSING: config/db.example.php" && exit 1)
           test -f includes/ai_helper.php    || (echo "MISSING: includes/ai_helper.php" && exit 1)
           test -f includes/csrf_helper.php  || (echo "MISSING: includes/csrf_helper.php" && exit 1)
           test -f includes/header.php       || (echo "MISSING: includes/header.php" && exit 1)
