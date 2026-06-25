@@ -64,3 +64,54 @@ Only output the single word. No punctuation, no explanation.";
 
     return calculate_urgency_fallback($hours);
 }
+
+function parse_natural_language_search(string $query): array {
+    $fallback = [
+        'category' => null,
+        'min_quantity' => null,
+        'urgency' => null,
+        'keyword' => $query,
+        'synonyms' => [],
+        'intent_summary' => ''
+    ];
+
+    $prompt = "You are a smart food search assistant for a Sri Lankan food redistribution platform.
+A user has typed this request: \"{$query}\"
+
+Extract the following and return ONLY a valid JSON object:
+{
+  \"category\": one of meals/bakery/produce/dairy/other or null,
+  \"min_quantity\": integer minimum quantity needed or null,
+  \"urgency\": one of high/medium/low or null,
+  \"keyword\": the primary food item name simplified (e.g. \"fried rice\" becomes \"rice\") or null,
+  \"synonyms\": array of 2-3 alternative search terms for the same food or empty array,
+  \"intent_summary\": one short sentence describing what the user needs (max 12 words)
+}
+
+Rules:
+- For quantity: \"for 15 people\", \"15 portions\", \"need 15\" all mean min_quantity = 15
+- For keyword: simplify to the core food type
+- For synonyms: think of how a Sri Lankan food business might label this item
+- Return only the JSON. No markdown, no backticks, no explanation.";
+
+    $result = gemini_request($prompt, 200);
+    
+    // Clean up potential markdown formatting
+    $result = preg_replace('/```json\s*(.*?)\s*```/s', '$1', $result);
+    $result = trim($result, "` \t\n\r\0\x0B");
+
+    $decoded = json_decode($result, true);
+
+    if (is_array($decoded)) {
+        return [
+            'category' => isset($decoded['category']) && in_array($decoded['category'], ['meals', 'bakery', 'produce', 'dairy', 'other']) ? $decoded['category'] : null,
+            'min_quantity' => isset($decoded['min_quantity']) && is_numeric($decoded['min_quantity']) ? (int)$decoded['min_quantity'] : null,
+            'urgency' => isset($decoded['urgency']) && in_array($decoded['urgency'], ['high', 'medium', 'low']) ? $decoded['urgency'] : null,
+            'keyword' => isset($decoded['keyword']) ? (string)$decoded['keyword'] : null,
+            'synonyms' => isset($decoded['synonyms']) && is_array($decoded['synonyms']) ? $decoded['synonyms'] : [],
+            'intent_summary' => isset($decoded['intent_summary']) ? (string)$decoded['intent_summary'] : ''
+        ];
+    }
+
+    return $fallback;
+}
