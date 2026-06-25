@@ -105,11 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         $new_id = (int)$pdo->lastInsertId();
 
-        // AI urgency scoring
+        // AI urgency scoring and summary generation
         $urgency = get_urgency_score($description, $pickup_end);
+        $summary = generate_listing_summary($title, $description, $category, (float)$disc_price, (int)$quantity, $pickup_end);
 
-        $stmt3 = $pdo->prepare('UPDATE food_listings SET urgency_score = ? WHERE id = ?');
-        $stmt3->execute([$urgency, $new_id]);
+        $stmt3 = $pdo->prepare('UPDATE food_listings SET urgency_score = ?, ai_summary = ? WHERE id = ?');
+        $stmt3->execute([$urgency, $summary, $new_id]);
 
         header('Location: my_listings.php?added=1');
         exit;

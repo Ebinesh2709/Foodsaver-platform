@@ -121,20 +121,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $urgency = get_urgency_score($description, $pickup_end);
+        $summary = generate_listing_summary($title, $description, $category, (float)$disc_price, (int)$quantity, $pickup_end);
 
         $stmt2 = $pdo->prepare(
             'UPDATE food_listings SET
                 title = ?, description = ?, category = ?,
                 original_price = ?, discounted_price = ?,
                 quantity = ?, pickup_start = ?, pickup_end = ?,
-                image = ?, urgency_score = ?
+                image = ?, urgency_score = ?, ai_summary = ?
              WHERE id = ? AND business_id = ?'
         );
         $stmt2->execute([
             $title, $description, $category,
             (float)$original_price, (float)$disc_price,
             (int)$quantity, $pickup_start, $pickup_end,
-            $image_filename, $urgency,
+            $image_filename, $urgency, $summary,
             $id, $business_id,
         ]);
 
