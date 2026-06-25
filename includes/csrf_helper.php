@@ -18,7 +18,7 @@ function generate_csrf_token(): string {
 function verify_csrf_token(string $token): void {
     if (!isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
         http_response_code(403);
-        echo 'Invalid CSRF token';
+        echo 'CSRF verification failed';
         exit;
     }
 }
