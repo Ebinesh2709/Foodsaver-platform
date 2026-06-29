@@ -104,6 +104,7 @@ require_once '../includes/header.php';
                         <td class="fw-bold text-success">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap small"><?= htmlspecialchars(date('d M Y, H:i', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="text-nowrap">
+
                             <a href="edit_listing.php?id=<?= (int)$listing['id'] ?>" class="btn btn-sm btn-fs-outline me-1" style="padding:0.28rem 0.7rem; font-size:0.78rem;">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
@@ -123,5 +124,7 @@ require_once '../includes/header.php';
         </div>
     <?php endif; ?>
 </div>
+
+
 
 <?php require_once '../includes/footer.php'; ?>

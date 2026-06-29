@@ -8,15 +8,17 @@
  * Depends on: includes/urgency_fallback.php (must be included by caller)
  */
 
-function gemini_request(string $prompt, int $max_tokens): string {
-    $base = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
-    $url  = $base . '?key=' . urlencode(GEMINI_API_KEY);
+function groq_request(string $prompt, int $max_tokens): string {
+    $url  = 'https://api.groq.com/openai/v1/chat/completions';
     $data = json_encode([
-        'contents' => [['parts' => [['text' => $prompt]]]],
-        'generationConfig' => ['temperature' => 0, 'maxOutputTokens' => $max_tokens]
+        'model'       => 'llama-3.1-8b-instant',
+        'messages'    => [['role' => 'user', 'content' => $prompt]],
+        'temperature' => 0,
+        'max_tokens'  => $max_tokens
     ]);
     $headers = [
         'Content-Type: application/json',
+        'Authorization: Bearer ' . GROQ_API_KEY
     ];
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -33,7 +35,7 @@ function gemini_request(string $prompt, int $max_tokens): string {
     curl_close($ch);
     if ($http_code !== 200) { return ''; }
     $body = json_decode($response, true);
-    return trim($body['candidates'][0]['content']['parts'][0]['text'] ?? '');
+    return trim($body['choices'][0]['message']['content'] ?? '');
 }
 
 function get_urgency_score(string $description, string $pickup_end): string {
@@ -58,7 +60,7 @@ Respond with exactly one word — either: high, medium, or low
 - low: plenty of time (over 48 hours)
 Only output the single word. No punctuation, no explanation.";
 
-    $result = gemini_request($prompt, 5);
+    $result = groq_request($prompt, 5);
     $word = strtolower($result);
 
     if (in_array($word, ['high', 'medium', 'low'])) {
@@ -118,7 +120,7 @@ Rules:
 - For synonyms: think of how a Sri Lankan food business might label this item
 - Return only the JSON. No markdown, no backticks, no explanation.";
 
-    $result = gemini_request($prompt, 200);
+    $result = groq_request($prompt, 100);
     
     // Clean up potential markdown formatting
     $result = preg_replace('/```json\s*(.*?)\s*```/s', '$1', $result);
@@ -171,7 +173,7 @@ Minimum quantity they need: {$min_quantity}
 Write a friendly 1-sentence response (max 15 words) confirming what was found.
 Example: \"Great news — 3 listings can provide 15 or more rice portions right now.\"
 Plain text only. No emojis.";
-        $result = gemini_request($prompt, 40);
+        $result = groq_request($prompt, 40);
         return $result ?: $fallback;
     } else {
         $fallback = "No exact matches found — try browsing all available listings below.";
@@ -180,7 +182,7 @@ Their need: {$intent_summary}
 
 Write a friendly 1-sentence suggestion (max 20 words) to try browsing all listings or adjusting search.
 Plain text only. No emojis.";
-        $result = gemini_request($prompt, 50);
+        $result = groq_request($prompt, 50);
         return $result ?: $fallback;
     }
 }
@@ -201,6 +203,8 @@ function get_expiry_alert(string $pickup_end, string $urgency_score): string {
 The food must be collected within {$hours} hours or it will be wasted.
 Make it feel urgent without being alarming. Plain text only. No emojis.";
 
-    $result = gemini_request($prompt, 30);
+    $result = groq_request($prompt, 30);
     return $result ?: $fallback;
 }
+
+
