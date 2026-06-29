@@ -9,14 +9,14 @@
  */
 
 function gemini_request(string $prompt, int $max_tokens): string {
-    $url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    $base = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    $url  = $base . '?key=' . urlencode(GEMINI_API_KEY);
     $data = json_encode([
         'contents' => [['parts' => [['text' => $prompt]]]],
         'generationConfig' => ['temperature' => 0, 'maxOutputTokens' => $max_tokens]
     ]);
     $headers = [
         'Content-Type: application/json',
-        'Authorization: Bearer ' . GEMINI_API_KEY,
     ];
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -25,10 +25,13 @@ function gemini_request(string $prompt, int $max_tokens): string {
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 10,
+        CURLOPT_SSL_VERIFYPEER => true,
     ]);
     $response = curl_exec($ch);
     if (curl_errno($ch)) { curl_close($ch); return ''; }
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    if ($http_code !== 200) { return ''; }
     $body = json_decode($response, true);
     return trim($body['candidates'][0]['content']['parts'][0]['text'] ?? '');
 }
@@ -66,12 +69,33 @@ Only output the single word. No punctuation, no explanation.";
 }
 
 function parse_natural_language_search(string $query): array {
+    // Improved Fallback Logic (Regex & Stop words)
+    $min_qty = null;
+    if (preg_match('/(\d+)/', $query, $matches)) {
+        $min_qty = (int)$matches[1];
+    }
+    
+    $stop_words = ['i', 'need', 'want', 'looking', 'for', 'some', 'any', 'a', 'an', 'the', 'get', 'buy', 'have'];
+    $words = explode(' ', strtolower($query));
+    $keywords = [];
+    foreach ($words as $word) {
+        $word = preg_replace('/[^a-z]/', '', $word);
+        if (!empty($word) && !in_array($word, $stop_words)) {
+            $keywords[] = $word;
+        }
+    }
+    
+    $fallback_keyword = implode(' ', $keywords);
+    if (empty($fallback_keyword)) {
+        $fallback_keyword = $query;
+    }
+
     $fallback = [
         'category' => null,
-        'min_quantity' => null,
+        'min_quantity' => $min_qty,
         'urgency' => null,
-        'keyword' => $query,
-        'synonyms' => [],
+        'keyword' => $fallback_keyword,
+        'synonyms' => count($keywords) > 1 ? $keywords : [],
         'intent_summary' => ''
     ];
 

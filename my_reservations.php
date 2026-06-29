@@ -14,7 +14,7 @@ require_once 'includes/csrf_helper.php';
 $user_id = (int)$_SESSION['user_id'];
 
 $stmt = $pdo->prepare(
-    'SELECT r.id, r.status, r.created_at,
+    'SELECT r.id, r.status, r.created_at, r.quantity,
             fl.title, fl.category, fl.discounted_price,
             fl.pickup_end, fl.urgency_score, fl.ai_summary,
             b.business_name, b.area
@@ -71,14 +71,25 @@ require_once 'includes/header.php';
             <div class="col-md-6">
                 <div class="fs-card" style="padding:1.4rem 1.5rem;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h2 class="h6 fw-bold mb-0" style="font-size:1rem; max-width:70%;"><?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?></h2>
+                        <h2 class="h6 fw-bold mb-0" style="font-size:1rem; max-width:70%;">
+                            <?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?> 
+                            <span class="badge" style="background:#e8f5ee; color:var(--fs-green); font-size:0.75rem; border:1px solid var(--fs-green-light); vertical-align:middle; margin-left:0.5rem;">Qty: <?= (int)$res['quantity'] ?></span>
+                        </h2>
                         <?= $badge_html ?>
                     </div>
 
-                    <?php if ($status === 'confirmed'): ?>
-                        <p style="font-size:0.82rem; color:var(--fs-green); font-weight:700; margin-bottom:0.5rem;">
-                            <i class="bi bi-bag-check me-1"></i>Ready for pickup!
-                        </p>
+                    <?php if ($status === 'pending'): ?>
+                        <div class="mb-3 p-2" style="background:#fff3cd; border-left:4px solid #ffc107; font-size:0.85rem; color:#664d03; border-radius:4px;">
+                            <i class="bi bi-hourglass-split me-1"></i><strong>Thank you for your reservation!</strong> The business will accept it soon.
+                        </div>
+                    <?php elseif ($status === 'confirmed'): ?>
+                        <div class="mb-3 p-2" style="background:#d1e7dd; border-left:4px solid #198754; font-size:0.85rem; color:#0f5132; border-radius:4px;">
+                            <i class="bi bi-bag-check me-1"></i><strong>Confirmed!</strong> Your food is ready. Please collect it before the pickup time.
+                        </div>
+                    <?php elseif ($status === 'collected'): ?>
+                        <div class="mb-3 p-2" style="background:#e8f5ee; border-left:4px solid var(--fs-green); font-size:0.85rem; color:var(--fs-green-dark); border-radius:4px;">
+                            <i class="bi bi-heart-fill text-danger me-1"></i><strong>Thank you for your purchase!</strong> We hope you enjoyed the food and helping the community.
+                        </div>
                     <?php endif; ?>
 
                     <?php if (!empty($res['ai_summary'])): ?>
@@ -95,7 +106,8 @@ require_once 'includes/header.php';
                         <?= get_urgency_badge_html($res['urgency_score']) ?>
                     </p>
                     <p style="font-size:0.9rem; font-weight:800; color:var(--fs-green); margin-bottom:0.3rem;">
-                        LKR <?= htmlspecialchars(number_format((float)$res['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?>
+                        Total: LKR <?= number_format((float)($res['discounted_price'] * $res['quantity']), 2) ?>
+                        <span style="font-size:0.75rem; color:var(--fs-text-muted); font-weight:normal;">(LKR <?= number_format((float)$res['discounted_price'], 2) ?> each)</span>
                     </p>
                     <p style="font-size:0.78rem; color:var(--fs-text-muted); margin-bottom:0.3rem;">
                         <i class="bi bi-clock me-1"></i>Pickup by: <strong><?= htmlspecialchars(date('D d M, g:i A', strtotime($res['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>

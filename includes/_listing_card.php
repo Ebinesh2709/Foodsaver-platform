@@ -27,46 +27,48 @@ if ($listing['urgency_score'] === 'high') {
 
         <!-- Body -->
         <div class="card-body">
-            <?php if ($expiry_alert): ?>
-                <p class="expiry-alert"><i class="bi bi-exclamation-circle-fill"></i><?= htmlspecialchars($expiry_alert, ENT_QUOTES, 'UTF-8') ?></p>
-            <?php endif; ?>
-
-            <?php if (!empty($listing['ai_summary'])): ?>
-                <p class="ai-blurb"><?= htmlspecialchars($listing['ai_summary'], ENT_QUOTES, 'UTF-8') ?></p>
-            <?php endif; ?>
-
-            <h2 class="listing-title"><?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?></h2>
-
-            <p class="listing-business">
-                <i class="bi bi-shop"></i>
-                <?= htmlspecialchars($listing['business_name'], ENT_QUOTES, 'UTF-8') ?>
-                <?php if ($listing['area']): ?>
-                    &middot; <?= htmlspecialchars($listing['area'], ENT_QUOTES, 'UTF-8') ?>
-                <?php endif; ?>
-            </p>
-
-            <p class="meta-row" style="margin-bottom:0.5rem; color:#555; font-size:0.8rem;">
-                <?= htmlspecialchars(mb_strimwidth($listing['description'] ?? '', 0, 90, '…'), ENT_QUOTES, 'UTF-8') ?>
-            </p>
-
-            <div class="price-row">
-                <span class="price-now">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                <span class="price-was">LKR <?= htmlspecialchars(number_format((float)$listing['original_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                <span class="ms-auto" style="font-size:0.75rem; background:#f0f4f2; padding:0.2em 0.6em; border-radius:50px; font-weight:600; color:#555;">
-                    Qty: <?= (int)$listing['quantity'] ?>
-                </span>
+            <div class="card-body-header">
+                <div class="price-row mb-1">
+                    <span class="price-now" id="price-now-<?= (int)$listing['id'] ?>">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
+                    <span class="price-was">LKR <?= htmlspecialchars(number_format((float)$listing['original_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
+                    <span class="ms-auto badge-category" style="padding:0.2em 0.6em;">Qty: <?= (int)$listing['quantity'] ?></span>
+                </div>
+                <h2 class="listing-title text-truncate" style="margin-bottom:0; padding-bottom:0.5rem;"><?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?></h2>
             </div>
+            
+            <div class="card-body-hidden">
+                <p class="listing-business mt-2">
+                    <i class="bi bi-shop"></i> <?= htmlspecialchars($listing['business_name'], ENT_QUOTES, 'UTF-8') ?>
+                    <?php if ($listing['area']): ?> &middot; <?= htmlspecialchars($listing['area'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
+                </p>
 
-            <p class="meta-row">
-                <i class="bi bi-clock"></i>
-                Pickup by <strong><?= htmlspecialchars(date('D d M, g:i A', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>
-            </p>
+                <?php if ($expiry_alert): ?>
+                    <p class="expiry-alert mb-2"><i class="bi bi-exclamation-circle-fill"></i><?= htmlspecialchars($expiry_alert, ENT_QUOTES, 'UTF-8') ?></p>
+                <?php endif; ?>
+
+                <?php if (!empty($listing['ai_summary'])): ?>
+                    <p class="ai-blurb mb-2"><?= htmlspecialchars($listing['ai_summary'], ENT_QUOTES, 'UTF-8') ?></p>
+                <?php endif; ?>
+
+                <p class="meta-row mb-2">
+                    <?= htmlspecialchars(mb_strimwidth($listing['description'] ?? '', 0, 80, '…'), ENT_QUOTES, 'UTF-8') ?>
+                </p>
+
+                <p class="meta-row mb-3" style="color:var(--fs-green-dark); font-weight:600;">
+                    <i class="bi bi-clock"></i> Pickup by <strong><?= htmlspecialchars(date('D d M, g:i A', strtotime($listing['pickup_end'])), ENT_QUOTES, 'UTF-8') ?></strong>
+                </p>
 
             <div class="card-footer-area">
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'customer'): ?>
                     <form method="post" action="reserve_listing.php" id="reserve-form-<?= (int)$listing['id'] ?>">
                         <input type="hidden" name="csrf_token" value="<?= generate_csrf_token() ?>">
                         <input type="hidden" name="listing_id" value="<?= (int)$listing['id'] ?>">
+                        
+                        <div class="d-flex align-items-center mb-2 gap-2">
+                            <label for="reserve_qty_<?= (int)$listing['id'] ?>" class="form-label mb-0" style="font-size:0.85rem; font-weight:600; color:var(--fs-text-muted);">Reserve Qty:</label>
+                            <input type="number" id="reserve_qty_<?= (int)$listing['id'] ?>" name="reserve_qty" class="form-control form-control-sm" style="max-width:80px; text-align:center;" min="1" max="<?= (int)$listing['quantity'] ?>" value="1" required oninput="document.getElementById('price-now-<?= (int)$listing['id'] ?>').innerText = 'LKR ' + (this.value * <?= (float)$listing['discounted_price'] ?>).toFixed(2);">
+                        </div>
+
                         <button type="submit" id="btn-reserve-<?= (int)$listing['id'] ?>" class="btn btn-fs-primary w-100">
                             <i class="bi bi-bag-plus me-1"></i>Reserve Now
                         </button>
@@ -76,9 +78,10 @@ if ($listing['urgency_score'] === 'high') {
                         <i class="bi bi-box-arrow-in-right me-1"></i>Login to Reserve
                     </a>
                 <?php else: ?>
-                    <button class="btn w-100" style="background:#f0f0f0; color:#999; cursor:not-allowed;" disabled>Reserve</button>
+                    <button class="btn btn-fs-outline w-100" disabled>Reserve</button>
                 <?php endif; ?>
             </div>
+            </div> <!-- end card-body-hidden -->
         </div>
     </div>
 </div>

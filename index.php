@@ -55,7 +55,9 @@ require_once 'includes/header.php';
                 </div>
             </div>
             <div class="col-lg-5 text-center">
-                <div class="hero-emoji">🥘</div>
+                <div class="hero-image-wrapper">
+                    <img src="assets/img/hero_food.png" alt="Premium Surplus Food" class="img-fluid w-100" style="object-fit:cover; aspect-ratio:4/5;">
+                </div>
             </div>
         </div>
     </div>
@@ -71,27 +73,33 @@ require_once 'includes/header.php';
         </div>
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="step-card">
-                    <span class="step-num">1</span>
-                    <span class="step-icon">🏪</span>
-                    <h3>Business Posts</h3>
-                    <p>Restaurants and food businesses list surplus food with a discounted price and pickup window. Our AI automatically scores urgency.</p>
+                <div class="step-card h-100">
+                    <div class="step-num-bg">1</div>
+                    <div class="step-content">
+                        <span class="step-icon"><i class="bi bi-shop"></i></span>
+                        <h3>Business Posts</h3>
+                        <p>Restaurants and food businesses list surplus food with a discounted price and pickup window. Our AI automatically scores urgency.</p>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="step-card">
-                    <span class="step-num">2</span>
-                    <span class="step-icon">🔍</span>
-                    <h3>Customer Finds</h3>
-                    <p>Browse available listings or use AI-powered natural language search. Find great food nearby before it expires.</p>
+                <div class="step-card h-100" style="transform:translateY(30px);">
+                    <div class="step-num-bg">2</div>
+                    <div class="step-content">
+                        <span class="step-icon"><i class="bi bi-search"></i></span>
+                        <h3>Customer Finds</h3>
+                        <p>Browse available listings or use AI-powered natural language search. Find great food nearby before it expires.</p>
+                    </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="step-card">
-                    <span class="step-num">3</span>
-                    <span class="step-icon">🌿</span>
-                    <h3>Food Saved</h3>
-                    <p>The customer reserves and collects during the pickup window. Less waste, better value, stronger community.</p>
+                <div class="step-card h-100" style="transform:translateY(60px);">
+                    <div class="step-num-bg">3</div>
+                    <div class="step-content">
+                        <span class="step-icon"><i class="bi bi-bag-check"></i></span>
+                        <h3>Food Saved</h3>
+                        <p>The customer reserves and collects during the pickup window. Less waste, better value, stronger community.</p>
+                    </div>
                 </div>
             </div>
         </div>

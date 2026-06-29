@@ -36,13 +36,26 @@ try {
         exit;
     }
 
-    // Insert reservation
-    $stmt2 = $pdo->prepare("INSERT INTO reservations (listing_id, user_id, status) VALUES (?, ?, 'pending')");
-    $stmt2->execute([$listing_id, $user_id]);
+    $reserve_qty = (int)($_POST['reserve_qty'] ?? 1);
+    if ($reserve_qty < 1 || $reserve_qty > $listing['quantity']) {
+        $pdo->rollBack();
+        header('Location: browse_listings.php?error=invalid_qty');
+        exit;
+    }
 
-    // Mark listing as reserved
-    $stmt3 = $pdo->prepare("UPDATE food_listings SET status = 'reserved' WHERE id = ?");
-    $stmt3->execute([$listing_id]);
+    // Insert reservation
+    $stmt2 = $pdo->prepare("INSERT INTO reservations (listing_id, user_id, quantity, status) VALUES (?, ?, ?, 'pending')");
+    $stmt2->execute([$listing_id, $user_id, $reserve_qty]);
+
+    // Update listing quantity
+    $new_qty = $listing['quantity'] - $reserve_qty;
+    if ($new_qty <= 0) {
+        $stmt3 = $pdo->prepare("UPDATE food_listings SET quantity = 0, status = 'sold_out' WHERE id = ?");
+        $stmt3->execute([$listing_id]);
+    } else {
+        $stmt3 = $pdo->prepare("UPDATE food_listings SET quantity = ? WHERE id = ?");
+        $stmt3->execute([$new_qty, $listing_id]);
+    }
 
     $pdo->commit();
 

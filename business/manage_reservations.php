@@ -67,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // --- GET: display reservations ---
 $stmt5 = $pdo->prepare(
-    'SELECT r.id, r.status, r.created_at,
-            fl.title, fl.id AS listing_id,
+    'SELECT r.id, r.status, r.created_at, r.quantity,
+            fl.title, fl.id AS listing_id, fl.discounted_price,
             u.name AS customer_name, u.phone AS customer_phone
      FROM reservations r
      JOIN food_listings fl ON r.listing_id = fl.id
@@ -125,7 +125,13 @@ require_once '../includes/header.php';
                     };
                     ?>
                     <tr>
-                        <td class="fw-semibold"><?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="fw-semibold">
+                            <?= htmlspecialchars($res['title'], ENT_QUOTES, 'UTF-8') ?> 
+                            <br>
+                            <small class="text-muted" style="font-weight:normal;">Qty: <?= (int)$res['quantity'] ?></small>
+                            <br>
+                            <small class="text-success" style="font-weight:700;">Total: LKR <?= number_format((float)($res['discounted_price'] * $res['quantity']), 2) ?></small>
+                        </td>
                         <td><?= htmlspecialchars($res['customer_name'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($res['customer_phone'] ?? '—', ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="small text-nowrap"><?= htmlspecialchars(date('d M Y, H:i', strtotime($res['created_at'])), ENT_QUOTES, 'UTF-8') ?></td>

@@ -4,3 +4,4 @@
 config/secrets.php
 config/db.php
 cleanup.php
+*.ps1

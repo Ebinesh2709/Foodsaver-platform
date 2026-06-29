@@ -39,14 +39,15 @@ try {
     }
 
     $listing_id = (int)$reservation['listing_id'];
+    $res_qty = (int)$reservation['quantity'];
 
     // Cancel the reservation
     $stmt2 = $pdo->prepare("UPDATE reservations SET status = 'cancelled' WHERE id = ?");
     $stmt2->execute([$reservation_id]);
 
-    // Make the listing available again
-    $stmt3 = $pdo->prepare("UPDATE food_listings SET status = 'available' WHERE id = ?");
-    $stmt3->execute([$listing_id]);
+    // Return the quantity and make the listing available again
+    $stmt3 = $pdo->prepare("UPDATE food_listings SET quantity = quantity + ?, status = 'available' WHERE id = ?");
+    $stmt3->execute([$res_qty, $listing_id]);
 
     $pdo->commit();
 
