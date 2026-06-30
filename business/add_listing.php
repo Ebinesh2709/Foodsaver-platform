@@ -196,12 +196,18 @@ require_once '../includes/header.php';
             </div>
             <div class="col-sm-6">
                 <label for="discounted_price" class="form-label fw-semibold">Discounted Price (LKR)</label>
-                <input type="number" step="0.01" min="0" id="discounted_price" name="discounted_price"
-                       class="form-control <?= isset($errors['discounted_price']) ? 'is-invalid' : '' ?>"
-                       value="<?= htmlspecialchars($old['disc_price'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
-                <?php if (isset($errors['discounted_price'])): ?>
-                    <div class="invalid-feedback"><?= htmlspecialchars($errors['discounted_price'], ENT_QUOTES, 'UTF-8') ?></div>
-                <?php endif; ?>
+                <div class="input-group">
+                    <input type="number" step="0.01" min="0" id="discounted_price" name="discounted_price"
+                           class="form-control <?= isset($errors['discounted_price']) ? 'is-invalid' : '' ?>"
+                           value="<?= htmlspecialchars($old['disc_price'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required>
+                    <button type="button" class="btn btn-outline-primary" id="btn-ai-discount">
+                        <i class="bi bi-magic me-1"></i> AI Suggestion
+                    </button>
+                    <?php if (isset($errors['discounted_price'])): ?>
+                        <div class="invalid-feedback"><?= htmlspecialchars($errors['discounted_price'], ENT_QUOTES, 'UTF-8') ?></div>
+                    <?php endif; ?>
+                </div>
+                <div id="ai-discount-container" class="mt-2" style="display:none;"></div>
             </div>
         </div>
 
@@ -244,5 +250,122 @@ require_once '../includes/header.php';
     </form>
 </div>
 </div>
+
+<script>
+document.getElementById('btn-ai-discount').addEventListener('click', function() {
+    const title = document.getElementById('title').value.trim();
+    const category = document.getElementById('category').value;
+    const originalPrice = parseFloat(document.getElementById('original_price').value);
+    const quantity = parseInt(document.getElementById('quantity').value, 10);
+    const pickupEnd = document.getElementById('pickup_end').value;
+    const container = document.getElementById('ai-discount-container');
+    
+    if (!title || !category || isNaN(originalPrice) || isNaN(quantity) || !pickupEnd) {
+        container.innerHTML = '<div class="alert alert-warning py-2 mb-0" style="font-size:0.9rem;">Please fill in Title, Category, Quantity, Original Price, and Pickup End first.</div>';
+        container.style.display = 'block';
+        return;
+    }
+
+    const endDate = new Date(pickupEnd);
+    const now = new Date();
+    const hours = (endDate - now) / (1000 * 60 * 60);
+
+    const btn = this;
+    const originalBtnText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Thinking...';
+    btn.disabled = true;
+
+    // Fallback logic
+    function applyFallback() {
+        let percent = 15;
+        let reason = "Ample time remaining for natural sale.";
+        if (hours <= 2) {
+            percent = 40;
+            reason = "Limited time remaining before pickup deadline.";
+        } else if (hours <= 6) {
+            percent = 30;
+            reason = "Moderate time remaining, discount recommended to encourage pickup.";
+        } else if (hours <= 24) {
+            percent = 20;
+            reason = "Standard discount to reduce food waste.";
+        }
+        showResult(percent, reason);
+    }
+
+    function showResult(percent, reason) {
+        if (percent < 10) percent = 10;
+        if (percent > 70) percent = 70;
+        const suggestedPrice = (originalPrice * (1 - (percent / 100))).toFixed(2);
+        
+        container.innerHTML = `
+            <div class="alert alert-info py-2 mb-0" style="font-size:0.9rem;">
+                <strong>AI Suggestion: ${percent}% off</strong><br>
+                Calculated Price: LKR ${suggestedPrice}<br>
+                <em>${reason}</em>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-sm btn-primary py-1 px-2" onclick="document.getElementById('discounted_price').value='${suggestedPrice}';">Use this discount</button>
+                </div>
+            </div>
+        `;
+        container.style.display = 'block';
+        btn.innerHTML = originalBtnText;
+        btn.disabled = false;
+    }
+
+    const GROQ_API_KEY = "<?= GROQ_API_KEY ?>";
+    const prompt = `You are a dynamic pricing assistant for a food waste reduction platform in Sri Lanka.
+A business wants a discount recommendation for this surplus food item:
+Food: ${title}
+Category: ${category}
+Original Price: LKR ${originalPrice}
+Quantity remaining: ${quantity}
+Hours until pickup deadline: ${hours}
+
+Recommend a discount percentage (between 10 and 70) that balances:
+- Selling the food before it goes to waste
+- Still being fair to the business
+- More urgency (less time left) should mean a higher discount
+- More quantity remaining should mean a higher discount
+
+Return ONLY a valid JSON object with exactly these keys:
+{
+  "recommended_discount_percent": integer between 10 and 70,
+  "reason": "one short sentence explaining why, max 20 words"
+}
+Return only the JSON. No markdown, no backticks, no explanation outside the JSON.`;
+
+    fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + GROQ_API_KEY
+        },
+        body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0,
+            max_tokens: 100
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+            let content = data.choices[0].message.content.trim();
+            content = content.replace(/```json\s*(.*?)\s*```/is, '$1'); // clean markdown
+            content = content.replace(/```\s*(.*?)\s*```/is, '$1');
+            const result = JSON.parse(content);
+            if (result.recommended_discount_percent && result.reason) {
+                showResult(parseInt(result.recommended_discount_percent, 10), result.reason);
+                return;
+            }
+        }
+        applyFallback();
+    })
+    .catch(err => {
+        console.error("AI discount error:", err);
+        applyFallback();
+    });
+});
+</script>
 
 <?php require_once '../includes/footer.php'; ?>

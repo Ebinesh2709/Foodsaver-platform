@@ -33,12 +33,9 @@ if ($_SESSION['chatbot_count'] >= 30) {
 
 // Parse input
 if (isset($_GET['payload'])) {
-    $input = json_decode($_GET['payload'], true);
-} elseif (isset($_POST['payload'])) {
-    $input = json_decode($_POST['payload'], true);
+    $input = json_decode(base64_decode($_GET['payload']), true);
 } else {
-    $raw = file_get_contents('php://input');
-    $input = json_decode($raw, true);
+    $input = [];
 }
 
 if (!is_array($input) || empty($input['message'])) {

@@ -99,7 +99,7 @@
     let badgeHidden = false;
 
     /* ── API base URL resolved by PHP ── */
-    const API_URL = <?= json_encode(($css_prefix ?? '') . 'api/chatbot.php') ?>;
+    const API_URL = <?= json_encode(($css_prefix ?? '') . 'get_info.php') ?>;
 
 
     /* ── Welcome message ── */
@@ -193,32 +193,43 @@
         sendBtn.disabled = true;
         input.disabled = true;
 
-        // POST to backend
-        fetch(API_URL, {
+        // Bypass InfinityFree's outbound firewall by connecting directly to Groq from the browser
+        const GROQ_API_KEY = "<?= GROQ_API_KEY ?>";
+        const prompt = "You are FoodSaver AI, a helpful assistant for a Sri Lankan food redistribution platform. Keep answers short (1-2 sentences), friendly, and focused on food waste reduction. User says: " + text;
+        
+        const payload = {
+            model: "llama-3.1-8b-instant",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+            max_tokens: 150
+        };
+
+        fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: text,
-                history: history.slice(-14) // send last 7 exchanges
-            })
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + GROQ_API_KEY
+            },
+            body: JSON.stringify(payload)
         })
         .then(function (res) { return res.json(); })
         .then(function (data) {
             removeTyping(typingEl);
-            if (data.reply) {
-                appendBotMessage(data.reply);
-                history.push({ role: 'model', text: data.reply });
-                // Keep history lean
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                const reply = data.choices[0].message.content;
+                appendBotMessage(reply);
+                history.push({ role: 'model', text: reply });
                 if (history.length > 20) history = history.slice(-20);
             } else if (data.error) {
-                appendErrorMessage(data.error);
+                appendErrorMessage(data.error.message || 'Groq API error');
             } else {
                 appendErrorMessage('Something went wrong. Please try again.');
             }
         })
-        .catch(function () {
+        .catch(function (err) {
             removeTyping(typingEl);
-            appendErrorMessage('Connection error. Please check your internet and try again.');
+            appendErrorMessage('Network Error: ' + err.message);
+            console.error('Chatbot error:', err);
         })
         .finally(function () {
             isLoading = false;

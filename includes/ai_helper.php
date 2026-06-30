@@ -27,7 +27,7 @@ function groq_request(string $prompt, int $max_tokens): string {
         CURLOPT_HTTPHEADER     => $headers,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 10,
-        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
     ]);
     $response = curl_exec($ch);
     if (curl_errno($ch)) { curl_close($ch); return ''; }
@@ -158,7 +158,7 @@ Write one short friendly sentence (max 25 words) that makes a customer want to p
 Focus on value: fresh food, good price, helping reduce waste.
 No emojis. Plain text only. Do not start with \"I\" or \"This is\".";
 
-    $result = gemini_request($prompt, 60);
+    $result = groq_request($prompt, 60);
     return $result ?: $fallback;
 }
 

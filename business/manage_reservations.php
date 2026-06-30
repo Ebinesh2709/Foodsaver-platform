@@ -116,13 +116,13 @@ require_once '../includes/header.php';
                 <tbody>
                 <?php foreach ($reservations as $res): ?>
                     <?php
-                    $status_badge = match($res['status']) {
-                        'pending'   => '<span class="status-badge status-pending">Pending</span>',
-                        'confirmed' => '<span class="status-badge status-confirmed">Confirmed</span>',
-                        'collected' => '<span class="status-badge status-collected">Collected</span>',
-                        'cancelled' => '<span class="status-badge status-cancelled">Cancelled</span>',
-                        default     => '<span class="status-badge status-collected">' . htmlspecialchars($res['status'], ENT_QUOTES, 'UTF-8') . '</span>',
-                    };
+                    switch($res['status']) {
+                        case 'pending':   $status_badge = '<span class="status-badge status-pending">Pending</span>'; break;
+                        case 'confirmed': $status_badge = '<span class="status-badge status-confirmed">Confirmed</span>'; break;
+                        case 'collected': $status_badge = '<span class="status-badge status-collected">Collected</span>'; break;
+                        case 'cancelled': $status_badge = '<span class="status-badge status-cancelled">Cancelled</span>'; break;
+                        default:          $status_badge = '<span class="status-badge status-collected">' . htmlspecialchars($res['status'], ENT_QUOTES, 'UTF-8') . '</span>'; break;
+                    }
                     ?>
                     <tr>
                         <td class="fw-semibold">

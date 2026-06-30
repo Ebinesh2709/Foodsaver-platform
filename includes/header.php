@@ -10,11 +10,11 @@
  */
 
 function get_urgency_badge_html(string $urgency): string {
-    return match($urgency) {
-        'high'   => '<span class="badge-urgency-high">🔴 High Urgency</span>',
-        'medium' => '<span class="badge-urgency-medium">🟡 Medium</span>',
-        default  => '<span class="badge-urgency-low">Low</span>',
-    };
+    switch ($urgency) {
+        case 'high': return '<span class="badge-urgency-high">🔴 High Urgency</span>';
+        case 'medium': return '<span class="badge-urgency-medium">🟡 Medium</span>';
+        default: return '<span class="badge-urgency-low">Low</span>';
+    }
 }
 
 $page_title  = $page_title  ?? 'FoodSaver';
