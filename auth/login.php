@@ -57,7 +57,7 @@ $active_page = 'login';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        body { padding-top: 0; min-height: 100vh; display: flex; flex-direction: column; background: linear-gradient(135deg,#e8f5ee 0%,#f0f9f4 60%,#fff 100%); }
+        body { padding-top: 0; min-height: 100vh; display: flex; flex-direction: column; background: linear-gradient(135deg, var(--fs-bg) 0%, #f4f1ea 100%); }
         .auth-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
     </style>
 </head>

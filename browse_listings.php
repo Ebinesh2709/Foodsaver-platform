@@ -86,35 +86,63 @@ $css_prefix  = '';
 require_once 'includes/header.php';
 ?>
 
-<!-- Page Header -->
-<div class="fs-page-header">
-    <div class="container">
-        <h1><i class="bi bi-grid me-2"></i>Browse Food Listings</h1>
-        <p>Fresh surplus food from local businesses — reserve before it's gone</p>
+<!-- Premium Search Hero (Playful Style) -->
+<div class="fs-search-hero mx-auto mt-4 mb-5" style="max-width: 1200px; padding: 2rem;">
+    <div class="hero-banner" style="background: #bcf37a; border-radius: 40px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 40px; min-height: 270px; overflow: visible;">
+        <div class="hero-text" style="flex: 1; padding: 40px 0;">
+            <h2 style="font-size: 2.4rem; color: #1e293b; margin: 0; line-height: 1.2; font-weight: 800; max-width: 500px;">Surprises Await The Bold!</h2>
+            <p style="color: #334155; font-weight: 600; font-size: 1.15rem; margin-top: 12px;">Discover fresh surplus food from local businesses at a fraction of the cost.</p>
+            
+            <form method="get" action="browse_listings.php" id="search-form" class="m-0 mt-4" style="max-width: 450px;">
+                <div class="input-group" style="background: white; border-radius: 12px; padding: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <input type="text" id="q" name="q" class="form-control border-0 bg-transparent shadow-none px-3"
+                           placeholder="e.g. I need 5 fried rice..."
+                           value="<?= htmlspecialchars($search_query, ENT_QUOTES, 'UTF-8') ?>"
+                           style="font-size: 1rem; height: 45px; font-family: 'Fredoka', sans-serif; color: #333;">
+                    <button type="submit" id="btn-search" class="btn px-4" style="background: #ffbe0b; color: white; border-radius: 10px; font-weight: 600;">Search</button>
+                    <?php if ($search_query): ?>
+                        <a href="browse_listings.php" id="btn-clear-search" class="btn btn-light px-3 ms-2 d-flex align-items-center justify-content-center" style="border-radius: 10px;">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <div class="form-text mt-2" style="font-size: 0.85rem; color: #2d5a27; font-weight: 600;">
+                    <i class="bi bi-robot me-1"></i>Powered by Groq AI
+                </div>
+            </form>
+        </div>
+        
+        <div class="hero-banner-image d-none d-lg-flex" style="flex: 1; height: 350px; align-items: flex-end; justify-content: flex-end; margin-bottom: -40px;">
+            <img src="assets/img/mascot_hero.png" alt="Premium Mascot" style="height: 100%; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
+        </div>
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container premium-section" style="max-width: 1200px;">
 
-    <!-- Search Bar -->
-    <div class="fs-search-bar mb-4">
-        <form method="get" action="browse_listings.php" id="search-form">
-            <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-stars"></i></span>
-                <input type="text" id="q" name="q" class="form-control"
-                       placeholder="e.g. I need 15 fried rice, cheap bakery items tonight..."
-                       value="<?= htmlspecialchars($search_query, ENT_QUOTES, 'UTF-8') ?>">
-                <button type="submit" id="btn-search" class="btn-search px-4">Search</button>
-                <?php if ($search_query): ?>
-                    <a href="browse_listings.php" id="btn-clear-search" class="btn btn-fs-outline px-3" style="border-radius:0 var(--fs-radius-sm) var(--fs-radius-sm) 0;">
-                        <i class="bi bi-x"></i>
-                    </a>
-                <?php endif; ?>
-            </div>
-            <div class="form-text ms-1 mt-1">
-                <i class="bi bi-robot me-1"></i>Powered by Gemini AI — understands natural language
-            </div>
-        </form>
+    <!-- Cuisines Row -->
+    <h3 class="fw-bold mb-3" style="font-size: 1.2rem; color: #333;">Cuisines & Categories</h3>
+    <div class="cuisine-row mb-5">
+        <a href="browse_listings.php?q=meals" class="filter-chip">
+            <i class="bi bi-egg-fried"></i>
+            Meals
+        </a>
+        <a href="browse_listings.php?q=bakery" class="filter-chip">
+            <i class="bi bi-baguette"></i>
+            Bakery
+        </a>
+        <a href="browse_listings.php?q=groceries" class="filter-chip">
+            <i class="bi bi-basket"></i>
+            Groceries
+        </a>
+        <a href="browse_listings.php?q=vegetarian" class="filter-chip">
+            <i class="bi bi-flower1"></i>
+            Vegetarian
+        </a>
+        <a href="browse_listings.php?q=drinks" class="filter-chip">
+            <i class="bi bi-cup-straw"></i>
+            Drinks
+        </a>
     </div>
 
     <!-- Error Alerts -->
@@ -128,35 +156,12 @@ require_once 'includes/header.php';
 
     <!-- AI Response -->
     <?php if ($is_search && $ai_response): ?>
-        <div class="fs-alert-ai mb-3">
-            <span class="ai-icon">🤖</span>
-            <span><?= htmlspecialchars($ai_response, ENT_QUOTES, 'UTF-8') ?></span>
+        <div class="fs-alert-ai mb-4" style="background:#fff; border-radius:24px; border:none; box-shadow:0 8px 24px rgba(0,0,0,0.05); padding:1.5rem;">
+            <span class="ai-icon" style="font-size:1.5rem;">🤖</span>
+            <span style="font-weight:600; color:#333; font-size:1.05rem;"><?= htmlspecialchars($ai_response, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
     <?php endif; ?>
 
-    <!-- Active Filter Chips -->
-    <?php if ($is_search && (!empty($filters['category']) || !empty($filters['min_quantity']) || !empty($filters['urgency']) || !empty($filters['keyword']))): ?>
-        <div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
-            <span style="font-size:0.78rem; font-weight:700; color:var(--fs-text-muted);">AI FILTERS</span>
-            <?php if (!empty($filters['category'])): ?>
-                <span class="filter-chip"><i class="bi bi-tag"></i><?= htmlspecialchars(ucfirst($filters['category']), ENT_QUOTES, 'UTF-8') ?></span>
-            <?php endif; ?>
-            <?php if (!empty($filters['min_quantity'])): ?>
-                <span class="filter-chip"><i class="bi bi-123"></i>Min Qty: <?= (int)$filters['min_quantity'] ?></span>
-            <?php endif; ?>
-            <?php if (!empty($filters['urgency'])): ?>
-                <span class="filter-chip"><i class="bi bi-clock"></i><?= htmlspecialchars(ucfirst($filters['urgency']), ENT_QUOTES, 'UTF-8') ?> Urgency</span>
-            <?php endif; ?>
-            <?php if (!empty($filters['keyword'])): ?>
-                <span class="filter-chip"><i class="bi bi-search"></i>"<?= htmlspecialchars($filters['keyword'], ENT_QUOTES, 'UTF-8') ?>"</span>
-            <?php endif; ?>
-            <?php if (!empty($filters['synonyms'])): ?>
-                <span class="filter-chip" style="background:rgba(0,0,0,0.04); color:var(--fs-text-muted); border-color:var(--fs-border);">
-                    also: <?= htmlspecialchars(implode(', ', $filters['synonyms']), ENT_QUOTES, 'UTF-8') ?>
-                </span>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
 
     <!-- Results -->
     <?php $show_fallback_all = $is_search && empty($listings); ?>

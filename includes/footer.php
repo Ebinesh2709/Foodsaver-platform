@@ -1,10 +1,40 @@
-<footer class="fs-footer mt-auto">
+<footer class="fs-footer mt-auto pt-5 pb-4">
     <div class="container">
-        <div class="mb-1">
-            <strong>🍱 FoodSaver</strong> &mdash; © 2025 Reducing food waste in Sri Lanka
+        <div class="row text-start gx-md-5 gy-4 mb-5">
+            <div class="col-lg-4">
+                <h4 class="mb-3" style="color:#fff; font-weight:800; font-family:'Outfit', sans-serif;">🍱 FoodSaver</h4>
+                <p style="color:rgba(255,255,255,0.7); font-size:0.95rem; line-height:1.7;">
+                    Empowering Sri Lanka to reduce food waste by connecting surplus food from local businesses directly to the community.
+                </p>
+                <div class="mt-4 d-flex gap-3 social-links">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="mb-3" style="color:#fff; font-weight:700;">Our Vision</h5>
+                <p style="color:rgba(255,255,255,0.7); font-size:0.95rem; line-height:1.7;">
+                    A future where zero perfectly good food goes to waste, and every community has access to affordable, quality meals.
+                </p>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="mb-3" style="color:#fff; font-weight:700;">Our Mission</h5>
+                <p style="color:rgba(255,255,255,0.7); font-size:0.95rem; line-height:1.7;">
+                    To build a sustainable digital ecosystem that bridges the gap between food surplus and food scarcity across the nation.
+                </p>
+            </div>
         </div>
-        <div>
-            <span class="sdg-pill">🌍 Supporting UN SDG 12 — Responsible Consumption</span>
+        <div class="pt-4" style="border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center; gap:1rem;">
+            <div style="color:rgba(255,255,255,0.6); font-size:0.9rem;">
+                &copy; 2025 FoodSaver Sri Lanka. All rights reserved.
+            </div>
+            <div>
+                <span class="sdg-pill" style="background:rgba(255,255,255,0.1); padding:0.4em 1em; border-radius:50px; font-size:0.85rem; color:#d1fae5; display:inline-flex; align-items:center; gap:0.4rem;">
+                    🌍 <span>Supporting UN SDG 12</span>
+                </span>
+            </div>
         </div>
     </div>
 </footer>

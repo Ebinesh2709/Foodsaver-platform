@@ -130,8 +130,8 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<div class="container pb-5">
-<div style="max-width:720px; margin:0 auto;">
+<div class="container mb-5">
+<div class="solid-card" style="max-width:720px; margin:0 auto;">
 
     <?php if (!empty($errors)): ?>
         <div class="fs-alert-danger mb-4">

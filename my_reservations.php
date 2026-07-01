@@ -40,7 +40,7 @@ require_once 'includes/header.php';
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container premium-section">
 
     <?php if (isset($_GET['reserved']) && $_GET['reserved'] == '1'): ?>
         <div class="fs-alert-success mb-4">

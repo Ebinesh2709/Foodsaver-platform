@@ -56,7 +56,7 @@ require_once 'includes/header.php';
             </div>
             <div class="col-lg-5 text-center">
                 <div class="hero-image-wrapper">
-                    <img src="assets/img/hero_food.png" alt="Premium Surplus Food" class="img-fluid w-100" style="object-fit:cover; aspect-ratio:4/5;">
+                    <img src="assets/img/mascot_hero.png" alt="Premium 3D Mascot" class="img-fluid w-100" style="object-fit:contain; aspect-ratio:4/5; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15)); animation: floatMascot 4s ease-in-out infinite;">
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@ require_once 'includes/header.php';
 </section>
 
 <!-- ═══ HOW IT WORKS ═══ -->
-<section class="page-section" style="background:var(--fs-bg);">
+<section class="premium-section" style="background:var(--fs-bg);">
     <div class="container">
         <div class="text-center mb-5">
             <p class="section-label">Simple Process</p>
@@ -107,7 +107,7 @@ require_once 'includes/header.php';
 </section>
 
 <!-- ═══ SDG 12 ═══ -->
-<section class="sdg-section page-section">
+<section class="sdg-section premium-section">
     <div class="container text-center">
         <div style="font-size:3.5rem; margin-bottom:1rem;">🌍</div>
         <p class="section-label">United Nations Goals</p>

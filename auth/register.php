@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        body { padding-top: 0; background: linear-gradient(135deg,#e8f5ee 0%,#f0f9f4 60%,#fff 100%); }
+        body { padding-top: 0; background: linear-gradient(135deg, var(--fs-bg) 0%, #f4f1ea 100%); }
         .auth-wrap { padding: 2rem 1rem 3rem; }
     </style>
 </head>

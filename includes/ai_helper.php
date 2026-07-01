@@ -187,8 +187,8 @@ Plain text only. No emojis.";
     }
 }
 
-function get_expiry_alert(string $pickup_end, string $urgency_score): string {
-    if ($urgency_score !== 'high') {
+function get_expiry_alert(?string $pickup_end, ?string $urgency_score): string {
+    if ($urgency_score !== 'high' || empty($pickup_end)) {
         return '';
     }
 

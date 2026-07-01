@@ -9,7 +9,7 @@
  *  4. Optionally set $css_prefix (string) for subdirectory asset paths.
  */
 
-function get_urgency_badge_html(string $urgency): string {
+function get_urgency_badge_html(?string $urgency): string {
     switch ($urgency) {
         case 'high': return '<span class="badge-urgency-high">🔴 High Urgency</span>';
         case 'medium': return '<span class="badge-urgency-medium">🟡 Medium</span>';
@@ -38,7 +38,7 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- FoodSaver Premium CSS -->
-    <link rel="stylesheet" href="<?= $css_prefix ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars($css_prefix ?? '', ENT_QUOTES, 'UTF-8') ?>assets/css/style_v2.css?v=<?= time() ?>">
 </head>
 <body>
 
@@ -48,9 +48,8 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
             🍱 FoodSaver
         </a>
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation"
-                style="color:rgba(255,255,255,0.8);">
-            <i class="bi bi-list" style="font-size:1.4rem;"></i>
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="bi bi-list" style="font-size:1.4rem; color: #0f172a;"></i>
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
@@ -60,7 +59,7 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
                     <a class="nav-link <?= $active_page === 'home' ? 'active' : '' ?>" href="<?= $css_prefix ?>index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $active_page === 'browse' ? 'active' : '' ?>" href="<?= $css_prefix ?>browse_listings.php">Browse</a>
+                    <a class="nav-link <?= $active_page === 'browse' ? 'active' : '' ?>" href="<?= $css_prefix ?>browse_listings.php">Browse listings</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $active_page === 'login' ? 'active' : '' ?>" href="<?= $css_prefix ?>auth/login.php">Login</a>

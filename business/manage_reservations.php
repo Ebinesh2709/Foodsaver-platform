@@ -92,7 +92,7 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<div class="container pb-5">
+<div class="container premium-section">
 
     <?php if (empty($reservations)): ?>
         <div class="fs-empty">

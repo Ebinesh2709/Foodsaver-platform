@@ -9,37 +9,40 @@ if ($listing['urgency_score'] === 'high') {
 }
 ?>
 <div class="col">
-    <div class="listing-card urgency-<?= htmlspecialchars($listing['urgency_score'], ENT_QUOTES, 'UTF-8') ?>">
+    <div class="listing-card h-100 solid-card p-0 overflow-hidden urgency-<?= htmlspecialchars($listing['urgency_score'] ?? 'low', ENT_QUOTES, 'UTF-8') ?>">
 
         <!-- Image -->
         <div class="card-img-wrap">
-            <?php if ($listing['image']): ?>
+            <?php if (!empty($listing['image'])): ?>
                 <img src="uploads/<?= htmlspecialchars($listing['image'], ENT_QUOTES, 'UTF-8') ?>"
-                     alt="<?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?>">
+                     alt="<?= htmlspecialchars($listing['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                     class="fs-card-img">
             <?php else: ?>
                 <div class="img-placeholder">🍱</div>
             <?php endif; ?>
             <div class="urgency-ribbon">
-                <?= get_urgency_badge_html($listing['urgency_score']) ?>
-                <span class="badge-category"><?= htmlspecialchars(ucfirst($listing['category']), ENT_QUOTES, 'UTF-8') ?></span>
+                <?= get_urgency_badge_html($listing['urgency_score'] ?? 'low') ?>
+                <span class="badge-category"><?= htmlspecialchars(ucfirst($listing['category'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span>
             </div>
         </div>
 
         <!-- Body -->
         <div class="card-body">
             <div class="card-body-header">
-                <div class="price-row mb-1">
-                    <span class="price-now" id="price-now-<?= (int)$listing['id'] ?>">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                    <span class="price-was">LKR <?= htmlspecialchars(number_format((float)$listing['original_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
-                    <span class="ms-auto badge-category" style="padding:0.2em 0.6em;">Qty: <?= (int)$listing['quantity'] ?></span>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="fw-bold text-success fs-5" id="price-now-<?= (int)$listing['id'] ?>">LKR <?= htmlspecialchars(number_format((float)$listing['discounted_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
+                        <span class="text-muted text-decoration-line-through ms-1 small price-was">LKR <?= htmlspecialchars(number_format((float)$listing['original_price'], 2), ENT_QUOTES, 'UTF-8') ?></span>
+                    </div>
+                    <span class="badge bg-light text-dark border">Qty: <?= (int)$listing['quantity'] ?></span>
                 </div>
-                <h2 class="listing-title text-truncate" style="margin-bottom:0; padding-bottom:0.5rem;"><?= htmlspecialchars($listing['title'], ENT_QUOTES, 'UTF-8') ?></h2>
+                <h2 class="listing-title text-truncate" style="margin-bottom:0; padding-bottom:0.5rem;"><?= htmlspecialchars($listing['title'] ?? '', ENT_QUOTES, 'UTF-8') ?></h2>
             </div>
             
             <div class="card-body-hidden">
                 <p class="listing-business mt-2">
-                    <i class="bi bi-shop"></i> <?= htmlspecialchars($listing['business_name'], ENT_QUOTES, 'UTF-8') ?>
-                    <?php if ($listing['area']): ?> &middot; <?= htmlspecialchars($listing['area'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
+                    <i class="bi bi-shop"></i> <?= htmlspecialchars($listing['business_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>
+                    <?php if (!empty($listing['area'])): ?> &middot; <?= htmlspecialchars($listing['area'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
                 </p>
 
                 <?php if ($expiry_alert): ?>

@@ -166,7 +166,7 @@ require_once '../includes/header.php';
 ?>
 
 <main>
-<div class="container py-4" style="max-width: 750px;">
+<div class="container premium-section" style="max-width: 750px;">
     <h1 class="h3 fw-bold mb-1">Edit Listing</h1>
     <p class="text-muted mb-4">Urgency score will be recalculated when you save.</p>
 
