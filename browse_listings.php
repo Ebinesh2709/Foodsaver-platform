@@ -16,6 +16,24 @@ if (!empty($_GET['q'])) {
     $search_query = substr(trim($_GET['q']), 0, 300);
     $is_search    = true;
     $filters      = parse_natural_language_search($search_query);
+} elseif (!empty($_GET['category'])) {
+    $cat = strtolower(trim($_GET['category']));
+    $is_search = true;
+    $search_query = ucfirst($cat); // for display
+    
+    // Manual mapping for the filter chips
+    if ($cat === 'groceries' || $cat === 'produce') $cat = 'produce';
+    elseif ($cat === 'drinks') $cat = 'other';
+    elseif ($cat === 'vegetarian') $cat = 'meals';
+    
+    $filters = [
+        'category' => in_array($cat, ['meals', 'bakery', 'produce', 'dairy', 'other']) ? $cat : null,
+        'min_quantity' => null,
+        'urgency' => null,
+        'keyword' => ($_GET['category'] === 'vegetarian' || $_GET['category'] === 'drinks') ? $_GET['category'] : null,
+        'synonyms' => [],
+        'intent_summary' => ''
+    ];
 }
 
 $where_parts = ["fl.status = 'available'"];
@@ -38,6 +56,15 @@ $search_terms = array_filter(array_merge(
     [$filters['keyword'] ?? null],
     $filters['synonyms'] ?? []
 ));
+
+// Filter out terms that exactly match the category to avoid restricting results unnecessarily
+if (!empty($filters['category'])) {
+    $search_terms = array_filter($search_terms, function($term) use ($filters) {
+        $term_clean = strtolower(trim($term));
+        $cat_clean = strtolower($filters['category']);
+        return $term_clean !== $cat_clean && $term_clean !== $cat_clean . 's'; // e.g., 'meal' vs 'meals'
+    });
+}
 $like_clauses = [];
 foreach ($search_terms as $term) {
     $like_clauses[] = '(fl.title LIKE ? OR fl.description LIKE ?)';
@@ -86,6 +113,12 @@ $css_prefix  = '';
 require_once 'includes/header.php';
 ?>
 
+<!-- AI Search Banner -->
+<div class="alert alert-info alert-dismissible fade show mx-auto mt-4 mb-0" role="alert" style="max-width: 1200px; background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 12px; font-weight: 500;">
+    🤖 <strong>Try our AI search</strong> — type what you need in plain English!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
 <!-- Premium Search Hero (Playful Style) -->
 <div class="fs-search-hero mx-auto mt-4 mb-5" style="max-width: 1200px; padding: 2rem;">
     <div class="hero-banner" style="background: #bcf37a; border-radius: 40px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 40px; min-height: 270px; overflow: visible;">
@@ -123,23 +156,23 @@ require_once 'includes/header.php';
     <!-- Cuisines Row -->
     <h3 class="fw-bold mb-3" style="font-size: 1.2rem; color: #333;">Cuisines & Categories</h3>
     <div class="cuisine-row mb-5">
-        <a href="browse_listings.php?q=meals" class="filter-chip">
+        <a href="browse_listings.php?category=meals" class="filter-chip">
             <i class="bi bi-egg-fried"></i>
             Meals
         </a>
-        <a href="browse_listings.php?q=bakery" class="filter-chip">
-            <i class="bi bi-baguette"></i>
+        <a href="browse_listings.php?category=bakery" class="filter-chip">
+            <i class="bi bi-shop"></i>
             Bakery
         </a>
-        <a href="browse_listings.php?q=groceries" class="filter-chip">
+        <a href="browse_listings.php?category=groceries" class="filter-chip">
             <i class="bi bi-basket"></i>
             Groceries
         </a>
-        <a href="browse_listings.php?q=vegetarian" class="filter-chip">
+        <a href="browse_listings.php?category=vegetarian" class="filter-chip">
             <i class="bi bi-flower1"></i>
             Vegetarian
         </a>
-        <a href="browse_listings.php?q=drinks" class="filter-chip">
+        <a href="browse_listings.php?category=drinks" class="filter-chip">
             <i class="bi bi-cup-straw"></i>
             Drinks
         </a>

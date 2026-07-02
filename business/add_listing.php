@@ -234,6 +234,7 @@ require_once '../includes/header.php';
 
         <div class="mb-4">
             <label for="image" class="form-label fw-semibold">Food Image <span class="text-muted fw-normal">(optional — JPG, PNG, WEBP)</span></label>
+            <div class="form-text mb-2 text-primary"><i class="bi bi-info-circle me-1"></i>For best results, upload landscape images (e.g., 16:9 or 4:3 ratio). Users can click images to view them fully.</div>
             <input type="file" id="image" name="image" class="form-control <?= isset($errors['image']) ? 'is-invalid' : '' ?>"
                    accept=".jpg,.jpeg,.png,.webp">
             <?php if (isset($errors['image'])): ?>

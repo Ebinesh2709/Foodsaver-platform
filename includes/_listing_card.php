@@ -16,7 +16,25 @@ if ($listing['urgency_score'] === 'high') {
             <?php if (!empty($listing['image'])): ?>
                 <img src="uploads/<?= htmlspecialchars($listing['image'], ENT_QUOTES, 'UTF-8') ?>"
                      alt="<?= htmlspecialchars($listing['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                     class="fs-card-img">
+                     class="fs-card-img"
+                     data-bs-toggle="modal"
+                     data-bs-target="#imageModal-<?= (int)$listing['id'] ?>"
+                     style="cursor: zoom-in;"
+                     title="Click to view full image">
+                
+                <!-- Full Image Modal -->
+                <div class="modal fade" id="imageModal-<?= (int)$listing['id'] ?>" tabindex="-1" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content bg-transparent border-0">
+                      <div class="modal-header border-0 pb-0 justify-content-end" style="position: absolute; right: 0; z-index: 1055;">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(0,0,0,0.6); padding: 0.5rem;"></button>
+                      </div>
+                      <div class="modal-body text-center p-0">
+                        <img src="uploads/<?= htmlspecialchars($listing['image'], ENT_QUOTES, 'UTF-8') ?>" class="img-fluid rounded shadow-lg" style="max-height: 85vh; object-fit: contain; width: 100%;">
+                      </div>
+                    </div>
+                  </div>
+                </div>
             <?php else: ?>
                 <div class="img-placeholder">🍱</div>
             <?php endif; ?>

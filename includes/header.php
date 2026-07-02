@@ -29,9 +29,10 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FoodSaver — connecting food businesses with the community to reduce food waste in Sri Lanka. Browse surplus food listings and reserve before they expire.">
+    <meta name="description" content="<?= htmlspecialchars($page_description ?? 'FoodSaver — connecting food businesses with the community to reduce food waste in Sri Lanka. Browse surplus food listings and reserve before they expire.', ENT_QUOTES, 'UTF-8') ?>">
     <title>FoodSaver — <?= htmlspecialchars($page_title, ENT_QUOTES, 'UTF-8') ?></title>
     <!-- Bootstrap 5.3 CSS -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍱</text></svg>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
           crossorigin="anonymous">
@@ -41,6 +42,21 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
     <link rel="stylesheet" href="<?= htmlspecialchars($css_prefix ?? '', ENT_QUOTES, 'UTF-8') ?>assets/css/style_v2.css?v=<?= time() ?>">
 </head>
 <body>
+
+<div id="fs-announcement" class="announcement-bar" style="display: none;">
+    🌱 FoodSaver Beta — All features free during launch period | <a href="<?= $css_prefix ?>auth/register.php">Join now →</a>
+    <button class="announcement-close" onclick="closeAnnouncement()">&times;</button>
+</div>
+
+<script>
+    if (!sessionStorage.getItem('fs_beta_closed')) {
+        document.getElementById('fs-announcement').style.display = 'block';
+    }
+    function closeAnnouncement() {
+        sessionStorage.setItem('fs_beta_closed', 'true');
+        document.getElementById('fs-announcement').style.display = 'none';
+    }
+</script>
 
 <nav class="fs-navbar navbar navbar-expand-lg fixed-top">
     <div class="container">
@@ -62,6 +78,9 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
                     <a class="nav-link <?= $active_page === 'browse' ? 'active' : '' ?>" href="<?= $css_prefix ?>browse_listings.php">Browse listings</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= $active_page === 'about' ? 'active' : '' ?>" href="<?= $css_prefix ?>about.php">About Us</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= $active_page === 'login' ? 'active' : '' ?>" href="<?= $css_prefix ?>auth/login.php">Login</a>
                 </li>
                 <li class="nav-item ms-lg-2">
@@ -74,6 +93,9 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
                 </li>
                 <li class="nav-item">
                     <a class="nav-link <?= $active_page === 'reservations' ? 'active' : '' ?>" href="<?= $css_prefix ?>my_reservations.php">My Reservations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $active_page === 'about' ? 'active' : '' ?>" href="<?= $css_prefix ?>about.php">About Us</a>
                 </li>
                 <li class="nav-item ms-lg-2">
                     <span class="user-chip"><i class="bi bi-person-circle"></i><?= $username ?></span>
@@ -95,6 +117,9 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
                 <li class="nav-item">
                     <a class="nav-link <?= $active_page === 'manage_reservations' ? 'active' : '' ?>" href="<?= $css_prefix ?>business/manage_reservations.php">Reservations</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $active_page === 'about' ? 'active' : '' ?>" href="<?= $css_prefix ?>about.php">About Us</a>
+                </li>
                 <li class="nav-item ms-lg-2">
                     <span class="user-chip"><i class="bi bi-shop"></i><?= $username ?></span>
                 </li>
@@ -105,6 +130,9 @@ $username = htmlspecialchars($_SESSION['name'] ?? '', ENT_QUOTES, 'UTF-8');
 <?php elseif ($role === 'admin'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= $active_page === 'dashboard' ? 'active' : '' ?>" href="<?= $css_prefix ?>admin/dashboard.php">Admin Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $active_page === 'about' ? 'active' : '' ?>" href="<?= $css_prefix ?>about.php">About Us</a>
                 </li>
                 <li class="nav-item ms-lg-2">
                     <span class="user-chip"><i class="bi bi-shield-lock"></i><?= $username ?></span>

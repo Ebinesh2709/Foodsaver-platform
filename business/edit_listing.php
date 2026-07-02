@@ -162,13 +162,19 @@ $pe_fmt = date('Y-m-d\TH:i', strtotime($listing['pickup_end']));
 
 $page_title  = 'Edit Listing';
 $active_page = 'my_listings';
+$css_prefix  = '../';
 require_once '../includes/header.php';
 ?>
 
-<main>
-<div class="container premium-section" style="max-width: 750px;">
-    <h1 class="h3 fw-bold mb-1">Edit Listing</h1>
-    <p class="text-muted mb-4">Urgency score will be recalculated when you save.</p>
+<div class="fs-page-header">
+    <div class="container">
+        <h1><i class="bi bi-pencil-square me-2"></i>Edit Listing</h1>
+        <p>Urgency score and AI summary will be recalculated when you save.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+<div class="solid-card" style="max-width:720px; margin:0 auto;">
 
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">Please fix the errors below before saving.</div>
@@ -271,6 +277,7 @@ require_once '../includes/header.php';
 
         <div class="mb-4">
             <label for="image" class="form-label fw-semibold">Replace Image <span class="text-muted fw-normal">(optional)</span></label>
+            <div class="form-text mb-2 text-primary"><i class="bi bi-info-circle me-1"></i>For best results, upload landscape images (e.g., 16:9 or 4:3 ratio). Users can click images to view them fully.</div>
             <?php if ($listing['image']): ?>
                 <div class="mb-2">
                     <img src="../uploads/<?= htmlspecialchars($listing['image'], ENT_QUOTES, 'UTF-8') ?>"
@@ -286,15 +293,15 @@ require_once '../includes/header.php';
             <?php endif; ?>
         </div>
 
-        <div class="d-flex gap-3">
-            <button type="submit" id="btn-save-listing" class="btn btn-success px-4 fw-semibold">
+        <div class="d-flex gap-3 pt-2">
+            <button type="submit" id="btn-save-listing" class="btn btn-fs-primary px-5 py-2">
                 <i class="bi bi-save me-2"></i>Save Changes
             </button>
-            <a href="my_listings.php" class="btn btn-outline-secondary px-4">Cancel</a>
+            <a href="my_listings.php" class="btn btn-fs-outline px-4 py-2">Cancel</a>
         </div>
     </form>
 </div>
-</main>
+</div>
 
 <script>
 document.getElementById('btn-ai-discount').addEventListener('click', function() {
