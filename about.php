@@ -172,69 +172,90 @@ require_once 'includes/header.php';
 
         <div class="row g-4 align-items-center justify-content-center">
             
-            <!-- Free Plan -->
-            <div class="col-lg-4 col-md-6">
-                <div class="fs-card p-4 h-100">
+            <!-- Card 1 — Free Plan -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fs-card p-4 h-100 shadow-sm">
                     <h4 class="fw-bold">Free Plan</h4>
                     <p class="text-muted small">For Customers</p>
                     <div class="my-4">
-                        <span class="display-4 fw-bold">LKR 0</span><span class="text-muted">/mo</span>
+                        <span class="display-4 fw-bold">LKR 0</span><span class="text-muted">/forever</span>
                     </div>
                     <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Browse listings</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Reserve food</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI-powered search</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Cancel anytime</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Browse all food listings</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI-powered natural language search</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Reserve food listings</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>View and cancel reservations</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No credit card required</li>
                     </ul>
                     <a href="auth/register.php" class="btn btn-nav-outline w-100">Get Started</a>
                 </div>
             </div>
 
-            <!-- Starter Plan -->
-            <div class="col-lg-4 col-md-6">
-                <div class="fs-card p-4 h-100">
-                    <h4 class="fw-bold">Business Starter</h4>
-                    <p class="text-muted small">For Small Shops</p>
+            <!-- Card 2 — Business Free -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fs-card p-4 h-100 shadow-sm">
+                    <h4 class="fw-bold">Business Free</h4>
+                    <p class="text-muted small">For New Businesses</p>
                     <div class="my-4">
-                        <span class="display-4 fw-bold">LKR 990</span><span class="text-muted">/mo</span>
+                        <span class="display-4 fw-bold">LKR 0</span><span class="text-muted">/month</span>
                     </div>
                     <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Post up to 5 listings/month</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI urgency scoring</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI discount recommendation</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Manage reservations</li>
-                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Basic analytics</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Post up to 2 listings per month</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Basic listing management</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Manual urgency classification</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>No AI features included</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Perfect for trying the platform</li>
                     </ul>
-                    <a href="checkout.php?plan=starter" class="btn btn-fs-primary w-100">Get Started</a>
+                    <a href="auth/register.php" class="btn btn-fs-primary w-100">Register Free</a>
                 </div>
             </div>
 
-            <!-- Pro Plan -->
-            <div class="col-lg-4 col-md-8">
+            <!-- Card 3 — Business Starter -->
+            <div class="col-lg-3 col-md-6">
                 <div class="fs-card pro-card p-1 shadow-lg" style="background: linear-gradient(135deg, var(--fs-green), var(--fs-green-dark)); z-index: 10;">
                     <div class="bg-white rounded p-4 h-100 position-relative">
                         <div class="position-absolute top-0 end-0 bg-warning text-dark fw-bold px-3 py-1 rounded-bl" style="border-bottom-left-radius: 12px; border-top-right-radius: 12px; font-size: 0.8rem; box-shadow: -2px 2px 10px rgba(0,0,0,0.1);">
                             Most Popular
                         </div>
-                        <h4 class="fw-bold">Business Pro</h4>
-                        <p class="text-muted small">For Restaurants & Supermarkets</p>
+                        <h4 class="fw-bold">Business Starter</h4>
+                        <p class="text-muted small">For Small Shops</p>
                         <div class="my-4">
-                            <span class="display-4 fw-bold">LKR 2,490</span><span class="text-muted">/mo</span>
+                            <span class="display-4 fw-bold">LKR 990</span><span class="text-muted">/month</span>
                         </div>
                         <ul class="list-unstyled mb-4">
-                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Unlimited listings</li>
-                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>All AI features included</li>
-                            <li class="mb-2"><i class="bi bi-star-fill text-warning me-2"></i>Priority listing placement</li>
-                            <li class="mb-2"><i class="bi bi-patch-check-fill text-primary me-2"></i>Verified Business badge</li>
-                            <li class="mb-2"><i class="bi bi-megaphone-fill text-danger me-2"></i>Featured in homepage spotlight</li>
-                            <li class="mb-2"><i class="bi bi-headset text-info me-2"></i>Dedicated support</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Up to 10 listings per month</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI urgency scoring on every listing</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI-generated listing summaries</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>AI dynamic discount recommendation</li>
+                            <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Reservation management dashboard</li>
                         </ul>
-                        <a href="checkout.php?plan=pro" class="btn w-100 text-white fw-bold" style="background: var(--fs-green-dark);">Get Started</a>
+                        <a href="checkout.php?plan=starter" class="btn w-100 text-white fw-bold" style="background: var(--fs-green-dark);">Get Started</a>
                     </div>
                 </div>
             </div>
 
+            <!-- Card 4 — Business Pro -->
+            <div class="col-lg-3 col-md-6">
+                <div class="fs-card p-4 h-100 shadow-sm">
+                    <h4 class="fw-bold">Business Pro</h4>
+                    <p class="text-muted small">For Restaurants and Supermarkets</p>
+                    <div class="my-4">
+                        <span class="display-4 fw-bold">LKR 2,490</span><span class="text-muted">/month</span>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Unlimited listings per month</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>All AI features included</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Priority placement in browse listings</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Verified Business badge on all listings</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Early access to new features</li>
+                        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Dedicated support</li>
+                    </ul>
+                    <a href="checkout.php?plan=pro" class="btn btn-fs-primary w-100">Get Started</a>
+                </div>
+            </div>
+
         </div>
+        <p class="text-center text-muted small mt-4 fst-italic">All features are currently unlocked for all users during the FoodSaver beta launch period.</p>
     </div>
 </section>
 
