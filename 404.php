@@ -13,7 +13,7 @@ $css_prefix  = '/';
     <title>FoodSaver — Page Not Found</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/style_v2.css">
     <style>
         body { padding-top: 0; min-height: 100vh; display: flex; flex-direction: column; background: linear-gradient(135deg,#e8f5ee 0%,#f0f9f4 60%,#fff 100%); }
         .err-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1rem; }
